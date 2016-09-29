@@ -24,13 +24,13 @@
 		<mapper resource="com/base/system/sql/Sample.xml"/>
 		<mapper resource="com/base/system/sql/Develope.xml"/><!--  [개발 PMS] -->
 	
-		<mapper url="file:////D:/project4.3/MyFramework/web/WEB-INF/classes/com/base/system/sql/Combo.xml"/>
-		<mapper url="file:////D:/project4.3/MyFramework/web/WEB-INF/classes/com/base/system/sql/BaseExcel.xml"/>
-		<mapper url="file:////D:/project4.3/MyFramework/web/WEB-INF/classes/com/base/system/sql/Page.xml"/><!--  [Page 관리] -->
-		<mapper url="file:////D:/project4.3/MyFramework/web/WEB-INF/classes/com/base/system/sql/Menu.xml"/><!--  [메뉴 관리] -->
+		<mapper url="file:////D:/Repository/Git/MyFramework/web/WEB-INF/classes/com/base/system/sql/Combo.xml"/>
+		<mapper url="file:////D:/Repository/Git/MyFramework/web/WEB-INF/classes/com/base/system/sql/BaseExcel.xml"/>
+		<mapper url="file:////D:/Repository/Git/MyFramework/web/WEB-INF/classes/com/base/system/sql/Page.xml"/><!--  [Page 관리] -->
+		<mapper url="file:////D:/Repository/Git/MyFramework/web/WEB-INF/classes/com/base/system/sql/Menu.xml"/><!--  [메뉴 관리] -->
 
 		<!--  mapper resource="com/base/system/sql/Auth.xml"/ --><!--  [권한 관리] -->
-		<mapper url="file:////D:/project4.3/MyFramework/web/WEB-INF/classes/com/base/system/sql/Auth.xml"/><!--  [권한 관리] -->
-		<mapper url="file:////D:/project4.3/MyFramework/web/WEB-INF/classes/com/base/system/sql/Code.xml"/><!--  [공통코드 관리] -->
+		<mapper url="file:////D:/Repository/Git/MyFramework/web/WEB-INF/classes/com/base/system/sql/Auth.xml"/><!--  [권한 관리] -->
+		<mapper url="file:////D:/Repository/Git/MyFramework/web/WEB-INF/classes/com/base/system/sql/Code.xml"/><!--  [공통코드 관리] -->
 	</mappers>
 </configuration>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<project default="jars" basedir=".">
+
+	<!--property setting-->
+	<property name="name" value="hoframework"/>
+	<property name="version" value="1.0"/>
+	
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	
+	<property name="classes.dir" value="bin"/>
+	
+	<property name="dist.dir" value="dist"/>
+	<property name="dist.file" value="${dist.dir}/${name}-${version}"/>
+	
+	<property name="jar.file" value="${build.dir}/${name}-${version}.jar"/>
+	
+	
+	<!--compile target-->
+	<target name="compile">
+		<mkdir dir="${build.dir}"/>
+		<mkdir dir="${classes.dir}"/>
+		<javac srcdir="${src.dir}" destdir="${classes.dir}"></javac>
+	</target>
+	
+	<!--jars target-->
+	<target name="jars">
+		<jar jarfile="${jar.file}" > <!-- basedir="${classes.dir}" --> 
+			<fileset dir="${classes.dir}">
+				<include name="project/**/*"/>
+			</fileset>
+		</jar>
+	</target>
+	
+</project>
