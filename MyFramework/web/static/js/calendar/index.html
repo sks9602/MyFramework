@@ -1,0 +1,82 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Ext JS Calendar Sample</title>
+    <link rel="stylesheet" type="text/css" href="resources/css/calendar.css" />
+    <link rel="stylesheet" type="text/css" href="resources/css/examples.css" />
+    <link rel="stylesheet" type="text/css" href="resources/css/tasks.css" />
+
+    <!-- GC -->
+	<style>
+	
+	/* Prev/next month title cells */
+	.ext-cal-dtitle-prev-holiday div,
+	.ext-cal-dtitle-next-holiday div{
+	    color: #f77;
+	}
+
+	.ext-cal-dtitle-prev-sat div,
+	.ext-cal-dtitle-next-sat div{
+	    color: #66f;
+	}
+		
+	td.ext-cal-dtitle-holiday div {
+   		padding: 2px 4px 1px;
+	    color: #f22;
+	}
+	td.ext-cal-dtitle-sat div {
+   		padding: 2px 4px 1px;
+	    color: #22f;
+	}
+
+	input[type=text],
+	.x-field-ux-korean { 
+		-webkit-ime-mode:active; 
+		-moz-ime-mode:active; 
+		-ms-ime-mode:active; 
+		ime-mode:active; 
+	} 
+
+	</style>
+	<script type="text/javascript" src="/s/static/js/ext-4.2/include-ext.js"></script>
+	<script type="text/javascript" src="/s/static/js/ext-4.2/ux/SinglePost.js"></script>
+	<script type="text/javascript" src="/s/static/js/ext-4.2/ux/PagingToolbar.js"></script>
+	<script type="text/javascript" src="/s/static/js/ext-4.2/ux/FormPanel.js"></script>
+	<script type="text/javascript" src="/s/static/js/ext-4.2/ux/HoMessage.js"></script>
+
+    <script type="text/javascript">
+        Ext.Loader.setConfig({
+            enabled: true,
+            paths: {
+                'Ext.calendar': 'src'
+            }
+        });
+        Ext.require([
+            //'Ext.diag.layout.Context',
+            //'Ext.diag.layout.ContextItem',
+            'Ext.calendar.App'
+        ]);
+        Ext.onReady(function(){
+            // launch the app:
+            Ext.create('Ext.calendar.App');
+
+            // update the header logo date:
+            document.getElementById('logo-body').innerHTML = new Date().getDate();
+        });
+    </script>
+    <link rel="stylesheet" type="text/css" href="/s/static/js/ext-4.2/ux/css/Ext.css" />
+</head>
+<body>
+    <div style="display:none;">
+    <div id="app-header-content">
+        <div id="app-logo">
+            <div class="logo-top">&nbsp;</div>
+            <div id="logo-body">&nbsp;</div>
+            <div class="logo-bottom">&nbsp;</div>
+        </div>
+        <h1>Ext JS Calendar</h1>
+        <span id="app-msg" class="x-hidden"></span>
+    </div>
+    </div>
+</body>
+</html>

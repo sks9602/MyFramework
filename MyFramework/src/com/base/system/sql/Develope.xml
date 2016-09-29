@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Thu Sep 01 17:09:27 KST 2011-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Develope">
+<!-- 
+CREATE TABLE HO_T_SYS_MENU (
+	SVC_CD VARCHAR2(10), /* 서비스 구분[SYS001] */
+	MENU_ID VARCHAR2(10), /* 메뉴 ID */
+	MENU_NM VARCHAR2(30),  /* 메뉴 명 */
+	P_MENU_ID VARCHAR2(10), /*  상위 메뉴 ID */
+	USE_YN VARCHAR2(1), /* 사용 여부 */
+	LINK_URL VARCHAR2(50), /* 링크 URL */
+	LINK_TYPE_CD VARCHAR2(10), /* 메뉴 연계 형태 [SYS002] */
+	DISPLAY_YN VARCHAR2(1),  /* 메뉴에 표시 여부 */
+	AUTH_APPLY_YN VARCHAR2(1), /* 권한 적용 여부 */
+	ICON_CLS VARCHAR2(20)
+)
+
+
+CREATE TABLE HO_T_SYS_BUTTON (
+	BTN_ID VARCHAR2(30) NOT NULL,   /* 버튼 구분 */
+	BTN_NM VARCHAR2(30),     /* 버튼 명 */
+	ICON_CLS VARCHAR2(20),     /* ICON */
+  AUTH_LEVEL_CD VARCHAR2(10),    /* 버튼 권한 LEVEL [SYS003] */
+  RESOURCE_ID VARCHAR2(10) /* MESSAGE RESOURCE */
+);
+
+
+CREATE TABLE HO_T_SYS_MENU_METHOD (
+	SVC_CD	VARCHAR2(10) NOT NULL	, /* 서비스 구분[SYS001] */
+	MENU_ID	VARCHAR2(10) NOT NULL	, /* 메뉴 ID */
+	ACTION_FLAG   VARCHAR2(20) NOT NULL, /* ACTION_FLAG */
+	METHOD      VARCHAR2(20), /* 메소드 */
+	METHOD_NM   VARCHAR2(50), /* 메소드 설명 */
+	USE_YN  VARCHAR2(1)  DEFAULT 'Y', /* 사용 여부 */
+	FUNC_LEVEL_CD VARCHAR2(10), /* 기능 LEVEL [SYS005] */
+	AUTH_APPLY_YN VARCHAR2(1)  DEFAULT 'Y' /* 권한 적용 여부 */
+)
+
+ -->
+
+<!--  메뉴 개발 진도 정보 조회  -->
+<select id="selectMenuDevelopeInfo" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT 
+      COMPANY_ID  ,
+      SYSTEM_ID  ,
+      MENU_ID  ,
+      DEV_MEMBER_ID  ,
+      PKG_NM  ,
+      JAVA_NM  ,
+      JSP_PATH  ,
+      DEV_STT_CD  ,
+      DEV_HARD_CD  ,
+      DEV_PRGS_RT  ,
+      DEV_STT_PLAN_DT  ,
+      DEV_STT_SCHD_DT  ,
+      DEV_STT_DT  ,
+      DEV_END_PLAN_DT  ,
+      DEV_END_SCHD_DT  ,
+      DEV_END_DT  ,
+      MOD_END_DT
+ FROM HO_T_SYS_MENU_PMS
+WHERE 1 = 1
+  AND COMPANY_ID = '0000'
+  AND SYSTEM_ID  = 'S'
+  AND MENU_ID    = #{MENU_ID}
+</select>
+
+<!--  메뉴 개발 진도 정보 조회  -->
+<select id="selectMenuFormList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT COMPANY_ID ,
+       SYSTEM_ID  ,
+       F_MENU_ID  ,
+       F_FORM_ID  ,
+       F_FORM_NM  
+  FROM HO_T_SYS_MENU_FORM
+ WHERE 1 = 1
+   AND COMPANY_ID = #{COMPANY_ID}
+   AND SYSTEM_ID  = #{SYSTEM_ID}
+   AND F_MENU_ID  = #{F_MENU_ID}
+   AND F_FORM_ID  = #{F_FORM_ID}
+</select>
+
+<!--  메뉴별 FORM 등록 마스터 등록 -->
+<insert id="insertMenuForm" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_MENU_FORM
+(
+  COMPANY_ID ,
+  SYSTEM_ID  ,
+  F_MENU_ID  ,
+  F_FORM_ID  ,
+  F_FORM_NM  
+)
+VALUES (
+  #{COMPANY_ID} ,
+  #{SYSTEM_ID}  ,
+  #{F_MENU_ID}  ,
+  #{F_FORM_ID}  ,
+  #{F_FORM_NM} 
+)
+</insert>
+
+<!--  메뉴별 FORM을 구성하는 ITEM 등록 -->
+<insert id="insertMenuFormItem" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_MENU_FORM_ITEM
+(
+  COMPANY_ID  ,
+  SYSTEM_ID   ,
+  F_MENU_ID   ,
+  F_FORM_ID   ,
+  ITEM_NM   ,
+  ITEM_TT   ,
+  ITEM_TP   ,
+  MAX_LENGTH  ,
+  MAX_VAL     ,
+  MIN_VAL     ,
+  VTYPES      
+)
+VALUES (
+  #{COMPANY_ID}  ,
+  #{SYSTEM_ID}   ,
+  #{F_MENU_ID}   ,
+  #{F_FORM_ID}   ,
+  #{ITEM_NM}   ,
+  #{ITEM_TT}   ,
+  #{ITEM_TP}   ,
+  #{MAX_LENGTH}  ,
+  #{MAX_VAL}     ,
+  #{MIN_VAL}     ,
+  #{VTYPES} 
+)
+</insert>
+
+
+<!--  메뉴별 FORM 삭제  -->
+<delete id="deleteMenuForm" parameterType="queryParameterMap" >
+DELETE 
+  FROM HO_T_SYS_MENU_FORM
+ WHERE 1 = 1
+   AND COMPANY_ID = #{COMPANY_ID}
+   AND SYSTEM_ID  = #{SYSTEM_ID}
+   AND F_MENU_ID  = #{F_MENU_ID}
+   AND F_FORM_ID  = #{F_FORM_ID}
+</delete>
+
+
+<!--  메뉴별 FORM을 구성하는 ITEM 삭제 -->
+<delete id="deleteMenuFormItem" parameterType="queryParameterMap" >
+DELETE 
+  FROM HO_T_SYS_MENU_FORM_ITEM
+ WHERE 1 = 1
+   AND COMPANY_ID = #{COMPANY_ID}
+   AND SYSTEM_ID  = #{SYSTEM_ID}
+   AND F_MENU_ID  = #{F_MENU_ID}
+   AND F_FORM_ID  = #{F_FORM_ID}
+</delete>
+
+<!--  메뉴별 FORM 등록 마스터 조회-->
+<select id="selectMenuFormHistList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT COMPANY_ID  ,
+       SYSTEM_ID   ,
+       F_MENU_ID   ,
+       F_MEMBER_ID   ,
+       F_FORM_ID   ,
+       HISTORY_SEQ ,
+       HISTORY_DT  ,
+       HISTORY_NM  ,
+       (SELECT COUNT(*)
+          FROM HO_T_SYS_MENU_FORM_HIST_DTL
+         WHERE COMPANY_ID = SMF.COMPANY_ID
+           AND SYSTEM_ID  = SMF.SYSTEM_ID 
+           AND F_MENU_ID  = SMF.F_MENU_ID 
+           AND F_MEMBER_ID = SMF.F_MEMBER_ID 
+           AND F_FORM_ID  = SMF.F_FORM_ID 
+           AND HISTORY_SEQ = SMF.HISTORY_SEQ 
+        ) AS ITEM_CNT
+  FROM HO_T_SYS_MENU_FORM_HIST SMF
+ WHERE 1 = 1 
+   AND COMPANY_ID  = #{COMPANY_ID}
+   AND SYSTEM_ID   = #{SYSTEM_ID}
+   AND F_MENU_ID   = #{F_MENU_ID}
+   AND F_MEMBER_ID = #{SSN_MEMBER_NO}
+   AND F_FORM_ID   = #{F_FORM_ID}
+ ORDER BY HISTORY_DT DESC
+</select>
+
+<!--  메뉴별 FORM 등록 상세 조회 -->
+<select id="selectMenuFormHistDetailList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT COMPANY_ID   ,
+       SYSTEM_ID    ,
+       F_MENU_ID    ,
+       F_MEMBER_ID    ,
+       F_FORM_ID    ,
+       HISTORY_SEQ  ,
+       ITEM_NM    ,
+       IS_SINGLE_VAL,
+       ITEM_VAL   
+  FROM HO_T_SYS_MENU_FORM_HIST_DTL
+ WHERE 1 = 1 
+   AND COMPANY_ID  = #{COMPANY_ID}
+   AND SYSTEM_ID   = #{SYSTEM_ID}
+   AND F_MENU_ID   = #{F_MENU_ID}
+   AND F_MEMBER_ID = #{SSN_MEMBER_NO}
+   AND F_FORM_ID   = #{F_FORM_ID}
+   AND HISTORY_SEQ  = #{HISTORY_SEQ}
+</select>
+
+
+<!--  메뉴별 FORM 등록 마스터 등록 -->
+<insert id="insertMenuFormHist" parameterType="queryParameterMap">
+	<selectKey  keyProperty="HISTORY_SEQ" resultType="Integer"  order="BEFORE" >
+SELECT NVL((SELECT MAX(HISTORY_SEQ)
+		      FROM HO_T_SYS_MENU_FORM_HIST
+		     WHERE 1 = 1 
+		       AND COMPANY_ID  = #{COMPANY_ID}
+		       AND SYSTEM_ID   = #{SYSTEM_ID}
+		       AND F_MENU_ID   = #{F_MENU_ID}
+		       AND F_MEMBER_ID = #{SSN_MEMBER_NO}
+		       AND F_FORM_ID   = #{F_FORM_ID} ) , 0 ) +1 AS HISTORY_SEQ
+  FROM DUAL
+	</selectKey>
+
+INSERT INTO HO_T_SYS_MENU_FORM_HIST (
+       COMPANY_ID  ,
+       SYSTEM_ID   ,
+       F_MENU_ID   ,
+       F_MEMBER_ID   ,
+       F_FORM_ID   ,
+       HISTORY_SEQ ,
+       HISTORY_DT  ,
+       HISTORY_NM  )
+VALUES (
+       #{COMPANY_ID}  ,
+       #{SYSTEM_ID}   ,
+       #{F_MENU_ID}   ,
+       #{SSN_MEMBER_NO}   ,
+       #{F_FORM_ID}   ,
+       #{HISTORY_SEQ} ,
+       SYSDATE        ,
+       #{HISTORY_NM}
+)
+</insert>
+
+<!--  메뉴별 FORM 등록 상세 등록 -->
+<insert id="insertMenuFormHistDetail" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_MENU_FORM_HIST_DTL (
+       COMPANY_ID   ,
+       SYSTEM_ID    ,
+       F_MENU_ID    ,
+       F_MEMBER_ID   ,
+       F_FORM_ID    ,
+       HISTORY_SEQ  ,
+       ITEM_NM    ,
+       IS_SINGLE_VAL,
+       ITEM_VAL   )
+VALUES (
+       #{COMPANY_ID}  ,
+       #{SYSTEM_ID}   ,
+       #{F_MENU_ID}   ,
+       #{SSN_MEMBER_NO}   ,
+       #{F_FORM_ID}   ,
+       #{HISTORY_SEQ} ,
+       #{ITEM_NM}   ,
+       #{IS_SINGLE_VAL},
+       #{ITEM_VAL}  
+)
+       
+</insert>
+
+<!--  메뉴별 FORM 등록 마스터 삭제 -->
+<delete id="deleteMenuFormHist"  parameterType="queryParameterMap">
+DELETE 
+  FROM HO_T_SYS_MENU_FORM_HIST SMF
+ WHERE 1 = 1 
+   AND COMPANY_ID  = #{COMPANY_ID}
+   AND SYSTEM_ID   = #{SYSTEM_ID}
+   AND F_MENU_ID   = #{F_MENU_ID}
+   AND F_MEMBER_ID = #{SSN_MEMBER_NO}
+   AND F_FORM_ID   = #{F_FORM_ID} 
+   AND HISTORY_SEQ   = #{HISTORY_SEQ}
+</delete>
+
+
+<!--  메뉴별 FORM 등록 마스터 삭제 -->
+<delete id="deleteMenuFormHistDetail"  parameterType="queryParameterMap">
+DELETE 
+  FROM HO_T_SYS_MENU_FORM_HIST_DTL SMF
+ WHERE 1 = 1 
+   AND COMPANY_ID  = #{COMPANY_ID}
+   AND SYSTEM_ID   = #{SYSTEM_ID}
+   AND F_MENU_ID   = #{F_MENU_ID}
+   AND F_MEMBER_ID = #{SSN_MEMBER_NO}
+   AND F_FORM_ID   = #{F_FORM_ID}
+   AND HISTORY_SEQ   = #{HISTORY_SEQ}
+</delete>
+
+</mapper>

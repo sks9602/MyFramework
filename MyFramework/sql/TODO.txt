@@ -1,0 +1,13 @@
+1. P6Spy -> Craftsman Spy(http://zer0.free.fr/craftsman/spy.php) 로 변경
+  eclipse - FileSync Plugin 추가. (web file 복사용) -> web추가후 패턴으로 설정. 
+      
+* PermGen관련 한일
+  1. jar이동.. ojdbc14.jar, P6Spy.jar, log4j.jar
+  2. catalina.bat JAVA_OPTS에 추가.  -Xms1280m -Xmx1280m -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled
+  3. catalina.bat JAVA_OPTS에 변경 
+     set JAVA_OPTS="-Dsesedu8360 -XX:PermSize=256m -XX:MaxPermSize=512m -Xms1280m -Xmx1280m -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled"
+     -> set JAVA_OPTS="-Dsesedu8360 -XX:PermSize=256m -XX:MaxPermSize=512m -Xms1280m -Xmx1280m -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:+CMSParallelRemarkEnabled -XX:CMSInitiatingOccupancyFraction=value -XX:+UseCMSInitiatingOccupancyOnly"
+  
+  
+* ExtJS 개발시 참고 및 주의 사항 10가지..
+https://www.sencha.com/blog/top-10-ext-js-development-practices-to-avoid-2/

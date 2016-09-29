@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Application context containing authentication, channel
+  - security and web URI beans.
+  -
+  - Only used by "filter" artifact.
+  -
+  -->
+
+<beans 	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:security="http://www.springframework.org/schema/security"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:util="http://www.springframework.org/schema/util"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+							http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+							http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+							http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+	<import resource="./ActionServlet-my.xml"/>
+
+	<security:http access-denied-page="/system/login.do?p_action_flag=denied">
+
+		<security:custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="filterSecurityInterceptor"/>
+
+
+		<security:form-login login-page="/system/login.do?p_action_flag=input"
+				authentication-failure-url="/system/login.do?p_action_flag=fail"
+				default-target-url="/system/dataBase.do?p_action_flag=db"
+				always-use-default-target="true" />
+		<security:logout logout-success-url="/system/login.do?p_action_flag=logouted" />
+		<security:anonymous />
+
+		<security:session-management invalid-session-url="/system/login.do?p_action_flag=timeout">
+			<security:concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/>
+		</security:session-management>
+
+		<security:remember-me />
+	</security:http>
+
+	<bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<property name="authenticationManager"  ref="authenticationManager" />
+		<property name="accessDecisionManager"  ref="accessDecisionManager" />
+		<property name="securityMetadataSource" ref="databaseSecurityMetadataSource" />
+	</bean>
+
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider  user-service-ref="loginAction" >
+			<security:password-encoder hash="sha-256" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+		<property name="allowIfAllAbstainDecisions" value="false" />
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter">
+					<property name="rolePrefix" value="ROLE_" />
+				</bean>
+				<bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</list>
+		</property>
+    </bean>
+
+
+	<bean id="databaseSecurityMetadataSource" class="org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource">
+		<constructor-arg>
+			<util:map map-class="java.util.LinkedHashMap">
+				<entry>
+					<key>
+						<bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+							<constructor-arg value="/system/login.do"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="IS_AUTHENTICATED_ANONYMOUSLY"/>
+						</bean>
+					</list>
+				</entry>
+				<entry>
+					<key>
+						<bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+							<constructor-arg value="/**"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_USER"/>
+						</bean>
+					</list>
+				</entry>
+			</util:map>
+		</constructor-arg>
+	</bean>
+	<bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
+
+</beans>

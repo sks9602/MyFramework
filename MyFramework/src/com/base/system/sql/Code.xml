@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Thu Sep 01 17:09:25 KST 2011-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Code">
+<!-- 
+	
+CREATE TABLE HO_T_SYS_CODE_P (
+  COMPANY_ID VARCHAR2(10) NOT NULL,
+	CD      VARCHAR2(10) NOT NULL,
+	CD_NM   VARCHAR2(50) NOT NULL,
+	CD_NM_ID  VARCHAR2(20),   // 다국어 RESOURCE ID 용 컬럼.
+	P_CD    VARCHAR2(10) NOT NULL,
+	PARAMETER VARCHAR2(20),    // 파라미터명
+	FREE_1   VARCHAR2(10),
+	FREE_2   VARCHAR2(10),
+	FREE_3   VARCHAR2(10),
+	FREE_4   VARCHAR2(10),
+	FREE_5   VARCHAR2(10),
+	FREE_6   VARCHAR2(10),
+	FREE_7   VARCHAR2(10),
+	FREE_8   VARCHAR2(10),
+	FREE_9   VARCHAR2(10),
+	ICON_CLS VARCHAR2(100),
+	USE_YN  VARCHAR2(1)  DEFAULT 'Y',
+	COMMENTS_TITLE VARCHAR2(256),
+	COMMENTS VARCHAR2(4000),
+	SORT_NUM NUMBER(5,2),   // 정렬 순서
+	CONSTRAINT HO_T_SYS_CODE_P_PK PRIMARY KEY (COMPANY_ID, CD)
+)
+
+
+CREATE TABLE HO_T_SYS_CODE (
+  COMPANY_ID VARCHAR2(10) NOT NULL,
+	CD      VARCHAR2(10) NOT NULL,
+	CD_NM   VARCHAR2(50) NOT NULL,
+	CD_NM_ID  VARCHAR2(20),   // 다국어 RESOURCE ID 용 컬럼.
+	P_CD    VARCHAR2(10) NOT NULL,
+	FREE_1   VARCHAR2(10),
+	FREE_2   VARCHAR2(10),
+	FREE_3   VARCHAR2(10),
+	FREE_4   VARCHAR2(10),
+	FREE_5   VARCHAR2(10),
+	FREE_6   VARCHAR2(10),
+	FREE_7   VARCHAR2(10),
+	FREE_8   VARCHAR2(10),
+	FREE_9   VARCHAR2(10),
+	ICON_CLS VARCHAR2(100),
+	USE_YN  VARCHAR2(1)  DEFAULT 'Y',
+	COMMENTS_TITLE VARCHAR2(256),
+	COMMENTS VARCHAR2(4000),
+	SORT_NUM NUMBER(5,2),   // 정렬 순서
+	CONSTRAINT HO_T_SYS_CODE_PK PRIMARY KEY (COMPANY_ID, CD)
+)
+
+// 날짜 관련
+CREATE TABLE HO_T_COM_DATE (
+	DAY_YEAR_IC  NUMBER(3),  // 년별 몇일째 (1 ~ 366) Intercalation 윤달
+	DAY_YEAR     NUMBER(3),  // 년별 몇일째 (1 ~ 365)
+	MONTH        NUMBER(3),  // 월  (1 ~ 12)
+	DAY_MONTH_IC    NUMBER(3),  // 월별 몇일째 (1 ~ 31) Intercalation 윤달
+	DAY_MONTH       NUMBER(3),  // 월별 몇일째 (1 ~ 31)
+	CONSTRAINT HO_T_COM_DATE_PK PRIMARY KEY (DAY_YEAR_IC)
+)
+ -->
+<!--  
+전체 공통 코드 를 조회 한다. 
+@TODO VIEW로 변경.. 
+ -->
+<select id="selectCodeList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT CD AS VALUE, CD_NM AS NAME, P_CD AS "GROUP", COMPANY_ID, CD, CD_NM, P_CD, FREE_1, FREE_2, FREE_3, FREE_4, FREE_5, FREE_6, FREE_7, FREE_8, FREE_9, ICON_CLS, COMMENTS AS COMMENTS, COMMENTS_TITLE AS COMMENTS_TITLE
+  FROM (
+   		SELECT COMPANY_ID, CD, CD_NM, PARAMETER, P_CD, FREE_1, FREE_2, FREE_3, FREE_4, FREE_5, FREE_6, FREE_7, FREE_8, FREE_9, ICON_CLS, COMMENTS AS COMMENTS, COMMENTS_TITLE AS COMMENTS_TITLE, SORT_NUM
+		  FROM HO_T_SYS_CODE_P
+		 WHERE 1 = 1
+		   AND USE_YN = 'Y'
+		 UNION ALL
+   		SELECT COMPANY_ID, CD, CD_NM, '' PARAMETER, P_CD, FREE_1, FREE_2, FREE_3, FREE_4, FREE_5, FREE_6, FREE_7, FREE_8, FREE_9, ICON_CLS, COMMENTS AS COMMENTS, COMMENTS_TITLE AS COMMENTS_TITLE, SORT_NUM
+		  FROM HO_T_SYS_CODE
+		 WHERE 1 = 1
+		   AND USE_YN = 'Y'
+		UNION ALL SELECT 'AA' AS COMPANY_CD, '1' CODE, '김일1' AS CODE_NM, '' PARAMETER, 'TUTOR_SEQ' AS P_CD, '' FREE_1, '' FREE_2, '' FREE_3, '' FREE_4, '' FREE_5, '' FREE_6, '' FREE_7, '' FREE_8, '' FREE_9, '' AS ICON_CLS, '' AS COMMENTS, '' AS COMMENTS_TITLE, NULL AS SORT_NUM FROM DUAL
+) ORDER BY P_CD, SORT_NUM, CD_NM
+</select>
+
+
+<!-- 공통코드 목록 전체 조회  조건식 -->
+<sql id="selectCodeListAllWhere">
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+	   		
+	   </otherwise>
+	 </choose>
+</sql>
+
+<!-- 
+공통코드 목록 전체 목록 수 조회.
+ -->
+<select id="selectCodeListAllCnt" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT COUNT(*) CNT
+  FROM HO_T_SYS_CODE TSC
+ WHERE 1 = 1
+	<!-- 공통코드 목록 쿼리 조건식 -->
+	<include refid="selectCodeListAllWhere"></include>
+</select>
+
+<!-- 
+공통코드 목록 전체 조회.
+ -->
+<select id="selectCodeListAll" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT  TSC.COMPANY_ID
+      , TSC.CD
+      , TSC.CD_NM
+      , TSC.PARAMETER
+      , TSC.P_CD
+      , TSC.FREE_1
+      , TSC.FREE_2
+      , TSC.FREE_3
+      , TSC.FREE_4
+      , TSC.FREE_5
+      , TSC.FREE_6
+      , TSC.FREE_7
+      , TSC.FREE_8
+      , TSC.FREE_9
+      , TSC.USE_YN
+      , TSC.COMMENTS_TITLE
+      , TSC.COMMENTS
+      , TSC.SORT_NUM
+      , TSC.ICON_CLS
+  FROM HO_T_SYS_CODE_P TSC
+ WHERE 1 = 1
+	<!-- 공통코드 목록 쿼리 조건식 -->
+	<include refid="selectCodeListAllWhere"></include>
+ UNION ALL
+SELECT  TSC.COMPANY_ID
+      , TSC.CD
+      , TSC.CD_NM
+      , '' AS PARAMETER
+      , TSC.P_CD
+      , TSC.FREE_1
+      , TSC.FREE_2
+      , TSC.FREE_3
+      , TSC.FREE_4
+      , TSC.FREE_5
+      , TSC.FREE_6
+      , TSC.FREE_7
+      , TSC.FREE_8
+      , TSC.FREE_9
+      , TSC.USE_YN
+      , TSC.COMMENTS_TITLE
+      , TSC.COMMENTS
+      , TSC.SORT_NUM
+      , TSC.ICON_CLS
+  FROM HO_T_SYS_CODE TSC
+ WHERE 1 = 1
+	<!-- 공통코드 목록 쿼리 조건식 -->
+	<include refid="selectCodeListAllWhere"></include>
+</select>
+
+
+<!-- 
+공통코드 목록 그룹코드별 목록 수 조회.
+ -->
+<select id="selectCodeListAllGroupCnt" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT COUNT(*) CNT
+  FROM HO_T_SYS_CODE TSC
+ WHERE 1 = 1
+   AND TSC.CD LIKE #{CODE}||'%'
+</select>
+
+
+<!-- 
+공통코드 목록 그룹코드별 목록 수 조회.
+ -->
+<select id="selectCodeListAllGroup" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT  TSC.COMPANY_ID
+      , TSC.CD
+      , TSC.CD AS ID
+      , TSC.CD_NM
+      , TSC.CD_NM AS TEXT
+      , TSC.PARAMETER
+      , TSC.P_CD
+      , TSC.P_CD AS P_ID
+      , TSC.FREE_1
+      , TSC.FREE_2
+      , TSC.FREE_3
+      , TSC.FREE_4
+      , TSC.FREE_5
+      , TSC.FREE_6
+      , TSC.FREE_7
+      , TSC.FREE_8
+      , TSC.FREE_9
+      , TSC.USE_YN
+      , TSC.COMMENTS_TITLE
+      , TSC.COMMENTS
+      , TSC.SORT_NUM
+      , TSC.ICON_CLS
+  FROM HO_T_SYS_CODE_P TSC
+ WHERE 1 = 1
+   AND ( TSC.CD = #{CODE} OR TSC.CD = (SELECT P_CD FROM HO_T_SYS_CODE_P WHERE CD = #{CODE} ))
+ UNION ALL  
+   SELECT  TSC.COMPANY_ID
+      , TSC.CD
+      , TSC.CD AS ID
+      , TSC.CD_NM
+      , TSC.CD_NM AS TEXT
+      , '' AS PARAMETER
+      , TSC.P_CD
+      , TSC.P_CD AS P_ID
+      , TSC.FREE_1
+      , TSC.FREE_2
+      , TSC.FREE_3
+      , TSC.FREE_4
+      , TSC.FREE_5
+      , TSC.FREE_6
+      , TSC.FREE_7
+      , TSC.FREE_8
+      , TSC.FREE_9
+      , TSC.USE_YN
+      , TSC.COMMENTS_TITLE
+      , TSC.COMMENTS
+      , TSC.SORT_NUM
+      , TSC.ICON_CLS
+  FROM HO_T_SYS_CODE TSC
+ WHERE 1 = 1
+   AND TSC.P_CD = #{CODE}
+</select>
+
+<!--  
+컬럼 전체 정보를  조회 한다. 
+ -->
+<select id="selectColumnList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT SCI.TABLE_NAME AS UP_CD
+      ,SCI.COLUMN_ID
+      ,SCI.COLUMN_NAME AS CODE
+      ,SCI.COLUMN_TITLE 
+      ,SCI.DATA_LENGTH AS SCALE
+      ,SCI.MIN_VALUE
+      ,SCI.MAX_VALUE
+      ,SCI.DATA_TYPE
+      ,SCI.PK_IDX
+      ,SCI.NOTNULL_YN
+      ,SCI.CODE
+      ,SCI.CODE_COLUMN
+      ,SCI.DATA_DEFAULT
+      ,SCI.SUB_QUERY
+  FROM HO_T_SYS_COLUMN_INFO SCI
+</select>
+
+
+<!-- 
+테이블의 컬럼별로 사용할 공통 코드 (GROUP코드) 정보.. 
+TODO
+ -->
+<select id="selectColumnCodeMapList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT COLUMN_NAME, CODE, CODE_COLUMN AS CODE_COLUMN_NAME
+  FROM HO_T_SYS_COLUMN_INFO
+ WHERE CODE IS NOT NULL
+ UNION ALL
+SELECT 'CASE_CD' AS COLUMN_NAME , 'B10' AS UP_CD, NVL(NULL, 'CODE_NM') AS CODE_COLUMN
+  FROM DUAL
+ UNION ALL
+SELECT 'TYPE_CD' AS COLUMN_NAME , 'B30' AS UP_CD, NVL(NULL, 'CODE_NM') AS CODE_COLUMN
+  FROM DUAL 
+</select>
+
+
+<!--  권한 목록을 조회 (Combobox용)-->
+<select id="selectAuthCode" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT AUTH_ID AS VALUE, AUTH_NM AS NAME, '' AS "GROUP", '0000' AS COMPANY_ID, 
+       AUTH_ID AS CD, AUTH_NM AS CD_NM, '' AS P_CD, 
+       '' AS FREE_1, '' AS FREE_2, '' AS FREE_3, '' AS FREE_4, '' AS FREE_5, '' AS FREE_6, '' AS FREE_7, '' AS FREE_8, '' AS FREE_9, 
+       '' AS ICON_CLS, '' AS  COMMENTS, '' AS  COMMENTS_TITLE
+  FROM HO_T_SYS_AUTH TSA
+ WHERE 1=1
+</select>
+
+</mapper>

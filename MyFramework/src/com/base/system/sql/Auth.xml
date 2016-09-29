@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Thu Sep 01 17:09:27 KST 2011-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Auth">
+<!-- 
+<![CDATA[
+
+ 권한 테이블
+CREATE TABLE HO_T_SYS_AUTH (
+	AUTH_ID VARCHAR2(20) NOT NULL,   /* 권한 ID */
+	AUTH_NM VARCHAR2(50),     /* 권한 명 */
+	AUTH_DESC VARCHAR2(1000)     /* 권한 설명 */
+);
+
+ 권한별 메뉴
+CREATE TABLE HO_T_SYS_AUTH_MENU (
+	AUTH_ID VARCHAR2(20) NOT NULL,  /* 권한 ID */
+	SVC_CD	VARCHAR2(10) NOT NULL,  /* 서비스 구분[SYS001] */
+	MENU_ID VARCHAR2(10) NOT NULL   /* 메뉴 ID */
+);
+
+ 권한별 메뉴 기능 LEVEL(화면/조회/처리)
+CREATE TABLE HO_T_SYS_AUTH_MENU_LEVEL (
+	AUTH_ID VARCHAR2(20) NOT NULL,  /* 권한 ID */
+	SVC_CD	VARCHAR2(10) NOT NULL,  /* 서비스 구분[SYS001] */
+	MENU_ID VARCHAR2(10) NOT NULL,   /* 메뉴 ID */
+	AUTH_LEVEL_CD VARCHAR2(10) NOT NULL /* 기능 LEVEL [SYS005] */
+);
+
+ 권한별 메뉴별 가능 METHOD
+CREATE TABLE HO_T_SYS_AUTH_MENU_METHOD (
+	AUTH_ID      VARCHAR2(20) NOT NULL,  /* 권한 ID */
+	SVC_CD	     VARCHAR2(10) NOT NULL,  /* 서비스 구분[SYS001] */
+	MENU_ID      VARCHAR2(10) NOT NULL,  /* 메뉴 ID */
+	ACTION_FLAG  VARCHAR2(20) NOT NULL   /* ACTION_FLAG */
+);
+
+
+ 사용자별 권한 테이블
+CREATE TABLE HO_T_SYS_AUTH_MEMBER (
+	COMPANY_ID VARCHAR2(20)  NOT NULL,     /* 회사 ID */
+	MEMBER_ID  VARCHAR2(20)  NOT NULL,     /* 회원 ID */
+	AUTH_ID    VARCHAR2(20)  NOT NULL      /* 권한 ID */
+);
+
+
+]]>
+-->
+ 
+<!--  권한 목록  수 조회 -->
+<select id="selectAuthListCnt" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT COUNT(*) CNT
+  FROM HO_T_SYS_AUTH TSA
+ WHERE 1=1
+   <if test='METADATA == "Y"'>
+   		AND 'N' = 'Y'
+   </if>
+</select> 
+
+<!--  권한 목록을 조회 -->
+<select id="selectAuthList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT AUTH_ID ID, AUTH_NM TEXT, AUTH_ID, AUTH_NM AUTH_NM, AUTH_DESC
+  FROM HO_T_SYS_AUTH TSA
+ WHERE 1=1
+   <if test='METADATA == "Y"'>
+   		AND 'N' = 'Y'
+   </if>
+
+</select>
+
+<!--  권한 상세정보 조회 -->
+<select id="selectAuthInfo" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT AUTH_ID, AUTH_NM, AUTH_DESC
+  FROM HO_T_SYS_AUTH TSA
+ WHERE 1=1
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+	AND AUTH_ID = #{AUTH_ID}
+	   </otherwise>
+	</choose>
+</select>
+   
+<!--  권한별 메뉴 목록 조회. -->
+<select id="selectMenuList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT  TSM.AUTH_ID AS AUTH_ID, TSM.MENU_ID ID, TSM.MENU_NM TEXT, TSM.SVC_CD, TSM.MENU_ID, TSM.MENU_ID REAL_MENU_ID, '' AS FUNC_LEVEL_CD, TSM.MENU_NM, TSM.P_MENU_ID P_ID, 
+        'MENU' AS TYPE, TSM.LINK_URL, '' AS ACTION_FLAG, TSM.AUTH_APPLY_YN, NVL2(TSAM.MENU_ID, 'Y','N') AS AUTH_YN,
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003001') AS R_LEVEL, -- 조회
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003002') AS P_LEVEL, -- 출력
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003003') AS I_LEVEL, -- 저장
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003004') AS D_LEVEL, -- 삭제
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003001') AS O_R_LEVEL, -- 조회
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003002') AS O_P_LEVEL, -- 출력
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003003') AS O_I_LEVEL, -- 저장
+       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_LEVEL WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND AUTH_LEVEL_CD = 'SYS003004') AS O_D_LEVEL, -- 삭제
+       'N' AS M_LEVEL,   -- 메서드 권한  
+       'N' AS O_M_LEVEL   -- 메서드 권한  
+  FROM (SELECT AUTH.AUTH_ID, TSM.MENU_ID, TSM.MENU_NM, TSM.SVC_CD, TSM.P_MENU_ID, TSM.LINK_URL, TSM.AUTH_APPLY_YN, TSM.USE_YN
+          FROM (SELECT #{AUTH_ID} AS AUTH_ID FROM DUAL) AUTH,
+                HO_T_SYS_MENU TSM ) TSM,
+       HO_T_SYS_AUTH_MENU TSAM
+ WHERE 1=1
+   AND TSM.AUTH_ID = TSAM.AUTH_ID (+)
+   AND TSM.SVC_CD  = TSAM.SVC_CD (+)
+   AND TSM.MENU_ID = TSAM.MENU_ID (+)
+   AND TSM.USE_YN  = 'Y'
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+		UNION ALL
+		SELECT  TSM.AUTH_ID AS AUTH_ID, TSM.MENU_ID||'_'||TSMM.ACTION_FLAG ID, TSM.MENU_NM TEXT, TSM.SVC_CD, TSM.MENU_ID||'_'||TSMM.ACTION_FLAG  MENU_ID, TSM.MENU_ID REAL_MENU_ID, TSMM.FUNC_LEVEL_CD, 
+		        DECODE(#{TYPE}, 'SYS006001', '( '||TSM.MENU_NM||' ) ' )||TSMM.METHOD_NM MENU_NM, TSM.MENU_ID P_ID, 
+		        'METHOD' AS TYPE, '#' AS LINK_URL, TSMM.ACTION_FLAG AS ACTION_FLAG,  TSM.AUTH_APPLY_YN, NVL2(TSAM.MENU_ID, 'Y','N') AS AUTH_YN,
+		       '' AS R_LEVEL, -- 조회
+		       '' AS P_LEVEL, -- 출력
+		       '' AS I_LEVEL, -- 저장
+		       '' AS D_LEVEL, -- 삭제    
+		       '' AS O_R_LEVEL, -- 조회
+		       '' AS O_P_LEVEL, -- 출력
+		       '' AS O_I_LEVEL, -- 저장
+		       '' AS O_D_LEVEL, -- 삭제    
+		       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_METHOD WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND ACTION_FLAG = TSMM.ACTION_FLAG ) AS M_LEVEL,  -- 메서드 권한
+		       (SELECT 'Y' FROM HO_T_SYS_AUTH_MENU_METHOD WHERE AUTH_ID = TSM.AUTH_ID AND SVC_CD = TSM.SVC_CD AND MENU_ID = TSM.MENU_ID AND ACTION_FLAG = TSMM.ACTION_FLAG ) AS O_M_LEVEL  -- 메서드 권한
+		  FROM (SELECT AUTH.AUTH_ID, TSM.MENU_ID, TSM.MENU_NM, TSM.SVC_CD, TSM.P_MENU_ID, TSM.LINK_URL, TSM.AUTH_APPLY_YN, TSM.USE_YN
+                  FROM (SELECT #{AUTH_ID} AS AUTH_ID FROM DUAL) AUTH,
+                       HO_T_SYS_MENU TSM ) TSM,
+		       HO_T_SYS_MENU_METHOD TSMM, 
+		       HO_T_SYS_AUTH_MENU   TSAM
+		 WHERE 1=1
+		   AND TSM.SVC_CD  = TSMM.SVC_CD
+		   AND TSM.MENU_ID  = TSMM.MENU_ID
+           AND TSM.AUTH_ID = TSAM.AUTH_ID (+)
+		   AND TSM.SVC_CD  = TSAM.SVC_CD (+)
+		   AND TSM.MENU_ID = TSAM.MENU_ID (+)
+		   AND TSM.USE_YN  = 'Y'		
+			<if test='TYPE == "SYS006001"'><!-- SYS006002 = MENU  -->
+		   		AND 1 = 2
+	   		</if>
+			<if test='FUNC_LEVEL_CD_ES.length != 0'>
+		   		AND
+		   		<foreach collection="FUNC_LEVEL_CD_ES" item="ITEM" separator="," open=" TSMM.FUNC_LEVEL_CD IN ("  close=")" >
+		   		 #{ITEM}
+		   		</foreach>
+	   		</if>		   
+	   </otherwise>
+	</choose>
+</select> 
+
+<!--  권한별 사용 불가능 메뉴 삭제  --> 
+<update id="deleteHoTSysAuthMenu" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH_MENU
+ WHERE 1 =1
+   AND AUTH_ID = #{AUTH_ID}       /* AUTH_ID -  */
+   AND SVC_CD  = #{SVC_CD}        /* SVC_CD -  */
+   AND MENU_ID = #{MENU_ID}       /* MENU_ID -  */
+</update>
+
+<!--  권한별 사용 가능 메뉴 등록  --> 
+<update id="insertHoTSysAuthMenu" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_AUTH_MENU(AUTH_ID ,SVC_CD ,MENU_ID ) 
+ SELECT #{AUTH_ID}, #{SVC_CD}, #{MENU_ID}  
+   FROM DUAL
+  WHERE NOT EXISTS (
+  	SELECT 1
+  	  FROM HO_T_SYS_AUTH_MENU
+     WHERE 1 =1
+       AND AUTH_ID = #{AUTH_ID}       /* AUTH_ID -  */
+       AND SVC_CD  = #{SVC_CD}        /* SVC_CD -  */
+       AND MENU_ID = #{MENU_ID}       /* MENU_ID -  */
+  )
+</update>
+
+<!--  권한별 메뉴의 사용 가능 버튼 등급 삭제  --> 
+<update id="deleteHoTSysAuthMenuLevel" parameterType="queryParameterMap"> 
+DELETE FROM HO_T_SYS_AUTH_MENU_LEVEL HTSAML  
+ WHERE HTSAML.AUTH_ID       = #{AUTH_ID}           /*  */
+   AND HTSAML.SVC_CD        = #{SVC_CD}            /*  */
+   AND HTSAML.MENU_ID       = #{MENU_ID}           /*  */
+   AND HTSAML.AUTH_LEVEL_CD = #{AUTH_LEVEL_CD}     /*  */
+</update>
+
+<!--  권한별 메뉴의 사용 가능 버튼 등급 등록  --> 
+<update id="insertHoTSysAuthMenuLevel" parameterType="queryParameterMap"> 
+INSERT INTO HO_T_SYS_AUTH_MENU_LEVEL (  
+            AUTH_ID               /*  */
+           ,SVC_CD                /*  */
+           ,MENU_ID               /*  */
+           ,AUTH_LEVEL_CD         /*  */
+  ) VALUES ( #{AUTH_ID}              /* AUTH_ID -  */
+            ,#{SVC_CD}               /* SVC_CD -  */
+            ,#{MENU_ID}              /* MENU_ID -  */
+            ,#{AUTH_LEVEL_CD}        /* AUTH_LEVEL_CD -  */
+  )
+</update>
+
+<!--  권한별 메뉴의 사용 불 가능 기능 삭제--> 
+<update id="deleteHoTSysAuthMenuMethod" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH_MENU_METHOD HTSAMM
+ WHERE HTSAMM.AUTH_ID     = #{AUTH_ID}         /*  */
+   AND HTSAMM.SVC_CD      = #{SVC_CD}          /*  */
+   AND HTSAMM.MENU_ID     = #{REAL_MENU_ID}         /*  */
+   AND HTSAMM.ACTION_FLAG = #{ACTION_FLAG}     /*  */
+</update>
+
+
+<!--  권한별 메뉴의 사용 가능 기능 등록 --> 
+<update id="insertHoTSysAuthMenuMethod" parameterType="queryParameterMap">
+INSERT INTO  HO_T_SYS_AUTH_MENU_METHOD ( 
+            AUTH_ID             /*  */
+           ,SVC_CD              /*  */
+           ,MENU_ID             /*  */
+           ,ACTION_FLAG         /*  */
+  ) VALUES ( #{AUTH_ID}            /* AUTH_ID -  */
+            ,#{SVC_CD}             /* SVC_CD -  */
+            ,#{REAL_MENU_ID}            /* MENU_ID -  */
+            ,#{ACTION_FLAG}        /* ACTION_FLAG -  */
+  )
+</update>
+
+
+<!--  권한 정보를 저장  --> 
+<update id="mergeHoTSysAuth" parameterType="queryParameterMap">
+MERGE INTO  HO_T_SYS_AUTH HTSA USING DUAL   /*  */
+   ON ( 
+   		HTSA.AUTH_ID  = #{AUTH_ID}          /*  */
+      ) 
+ WHEN MATCHED THEN UPDATE SET
+      HTSA.AUTH_NM    = #{AUTH_NM}         /*  */
+     ,HTSA.AUTH_DESC  = #{AUTH_DESC}   
+ WHEN NOT MATCHED THEN
+	INSERT  (
+		AUTH_ID ,    /* 권한 ID */
+		AUTH_NM ,    /* 권한 명 */
+		AUTH_DESC    /* 권한 설명 */
+	) VALUES (
+		#{AUTH_ID} ,  /* 권한 ID */
+		#{AUTH_NM} ,  /* 권한 명 */
+		#{AUTH_DESC}  /* 권한 설명 */
+	)
+</update>
+
+<!-- 권한별 회원 목록 쿼리 조건식 -->
+<sql id="selectAuthMemberListWhere">
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+	   		AND HTSAM.AUTH_ID = #{AUTH_ID}
+	   </otherwise>
+	 </choose>
+</sql>
+
+<!--  권한별 회원 목록 수 조회. -->
+<select id="selectAuthMemberListCnt" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT COUNT(*) CNT
+  FROM HO_T_SYS_AUTH_MEMBER HTSAM
+ WHERE 1 = 1
+	<!-- 권한별 회원 목록 쿼리 조건식 -->
+	<include refid="selectAuthMemberListWhere"></include>
+</select> 
+
+
+<!--  권한별 회원 목록 조회. -->
+<select id="selectAuthMemberList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT HTSAM.COMPANY_ID, HTSAM.MEMBER_ID, '' AS MEMBER_NM, HTSAM.AUTH_ID, 'Y' IS_EXISTS,
+       (SELECT COUNT(*) FROM HO_T_SYS_AUTH_MEMBER  WHERE COMPANY_ID = HTSAM.COMPANY_ID AND MEMBER_ID = HTSAM.MEMBER_ID) AUTH_CNT
+  FROM HO_T_SYS_AUTH_MEMBER HTSAM
+ WHERE 1 = 1
+	<!-- 권한별 회원 목록 쿼리 조건식 -->
+	<include refid="selectAuthMemberListWhere"></include>
+</select> 
+
+<!--  권한 정보를 삭제  --> 
+<update id="deleteHoTSysAuth" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH
+ WHERE AUTH_ID  = #{AUTH_ID} 
+</update>
+
+<!--  권한별 메뉴를 삭제  --> 
+<update id="deleteHoTSysAuthMenuByAuth" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH_MENU
+ WHERE AUTH_ID  = #{AUTH_ID} 
+</update>
+
+<!--  권한별 메뉴 Level을 삭제  --> 
+<update id="deleteHoTSysAuthMenuLevelByAuth" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH_MENU_LEVEL
+ WHERE AUTH_ID  = #{AUTH_ID} 
+</update>
+
+<!--  권한별 메뉴 Method를 삭제  --> 
+<update id="deleteHoTSysAuthMenuMethodByAuth" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH_MENU_METHOD
+ WHERE AUTH_ID  = #{AUTH_ID} 
+</update>
+
+<!--  권한별 운영자를 삭제  --> 
+<update id="deleteHoTSysAuthMemberByAuth" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_AUTH_MEMBER
+ WHERE AUTH_ID  = #{AUTH_ID} 
+</update>
+
+<!--  권한별 메뉴 목록 조회. -->
+<select id="selectAuthMenuList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT TSM.MENU_ID, TSM.MENU_NM, TSM.P_MENU_ID, TSM.LINK_TYPE_CD, TSM.LINK_URL
+  FROM HO_T_SYS_MENU TSM
+ WHERE TSM.SVC_CD     = #{SVC_CD} 
+   AND TSM.USE_YN     = 'Y'
+   AND TSM.DISPLAY_YN = 'Y'
+   AND ( TSM.MENU_ID
+	   IN (	SELECT SUBSTR(TSAM.MENU_ID, 0, TCD.DAY_YEAR_IC)
+			  FROM HO_T_SYS_AUTH_MENU   TSAM
+				  ,HO_T_SYS_AUTH_MEMBER TSAMB
+				  ,HO_T_COM_DATE        TCD
+			 WHERE TSAM.AUTH_ID     = TSAMB.AUTH_ID
+			   AND TSAM.SVC_CD      = #{SVC_CD} 
+			   AND TSAMB.COMPANY_ID = #{COMPANY_ID} 
+			   AND TSAMB.MEMBER_ID  = #{MEMBER_ID}
+			   AND LENGTH(TSAM.MENU_ID) >= TCD.DAY_YEAR_IC   )
+	  OR TSM.AUTH_APPLY_YN = 'N'  )
+</select>
+
+</mapper>

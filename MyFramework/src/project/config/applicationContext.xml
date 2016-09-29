@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+	<bean id="messageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>file:////D:/Repository/Git/MyFramework/MyFramework/web/WEB-INF/classes/message/ActionMessage</value>
+				<!--  value>/WEB-INF/classes/message/ActionMessage</value-->
+				<value>file:////D:/Repository/Git/MyFramework/MyFramework/web/WEB-INF/classes/message/CommonMessage</value>
+				<value>file:////D:/Repository/Git/MyFramework/MyFramework/web/WEB-INF/classes/message/ErrorMessage</value>
+				<value>file:////D:/Repository/Git/MyFramework/MyFramework/web/WEB-INF/classes/message/PageMessage</value>
+			</list>
+		</property>
+		<property name="cacheSeconds" value="5"/>
+		<property name="defaultEncoding" value="utf-8"/>
+	</bean>
+
+	<bean id="configDao" class="project.jun.config.HoConfigDao">
+		<property name="defaultDaoName">
+			<value>ProjectDao</value>
+		</property>
+		<property name="debugArugumentsOrdered">
+			<value>true</value>
+		</property>
+		<property name="debugAruguments">
+			<value>true</value>
+		</property>
+		<property name="debugArugumentsValue">
+			<value>true</value>
+		</property>
+
+	</bean>
+
+	<bean id="configDisplayFormat" class="project.jun.config.HoConfigDisplayFormat">
+		<property name="displayFormat">
+			<map>
+				<entry key="YMD"        value="yyyy-MM-dd"/>
+				<entry key="YM"         value="yyyy-MM"/>
+				<entry key="Y"          value="yyyy"/>
+				<entry key="HMS"        value="a hh:mm:ss"/>
+				<entry key="HM"         value="a hh:mm"/>
+				<entry key="POINT"      value="###,###,###,###,###,###,###.00"/>
+				<entry key="CURRENCY"   value="###,###,###,###,###,###,###"/>
+				<entry key="NUMBER"     value="###,###,###,###,###,###,###"/>
+				<entry key="INT"        value="#####################"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="config" class="project.jun.config.HoConfig" parent="configDisplayFormat">
+		<property name="sessionNamePrefix">
+			<value>SSN_</value>
+		</property>
+		<property name="characterSet">
+			<value>utf-8</value>
+		</property>
+		<property name="characterSetAjax">
+			<value>utf-8</value>
+		</property>
+		<property name="characterSetFile">
+			<value>utf-8</value>
+		</property>
+		<property name="characterSetInput">
+			<value>utf-8</value>
+		</property>
+		<property name="maxFileSize">
+			<value>4096000</value>
+		</property>
+		<property name="dirFileUpload"><!--  운영 서버 파일 업로드 경로.. TODO -->
+			<value>D:/TEMP</value>
+		</property>
+		<property name="dirFileUploadDev"><!--  개발 서버 파일 업로드 경로.. -->
+			<value>D:/TEMP</value>
+		</property>
+		<property name="uploadFolderType"><!--  파일업로드후 생성할 파일 경로  형태  -  yyyyMMddHHmmss(Date형태중에서 - default yyyyMMdd)/ none (디렉토리 구분 없음) / random(랜덤하게 ) -->
+			<value>yyyyMMdd</value>
+		</property>		
+		<property name="renameFileNameType"><!--  파일 업로드 후 새로 만들 파일 명 (확장자는 안바꿈..) - random(랜덤하게 - default)  / original or none (원래파일명사용) / date(년월일시분초)-->
+			<value>random</value>
+		</property>			
+		<property name="dirTempFileUpload">
+			<value>D:/TEMP</value>
+		</property>
+		<property name="dirWasHome">
+			<value>/</value>
+		</property>
+		<property name="dirWebHome">
+			<value>/static/flash</value>
+		</property>
+		<property name="productMode"><!-- 운영모드여부  -->
+			<value>false</value>
+		</property>
+		<property name="actionFlag">
+			<value>p_action_flag</value>
+		</property>
+		<property name="uploadType">
+			<value>common</value><!-- cos / common -->
+		</property>
+		<property name="debugParameterOrdered">
+			<value>true</value>
+		</property>
+		<property name="debugParameter">
+			<value>true</value>
+		</property>
+		<property name="debugParameterValue">
+			<value>true</value>
+		</property>
+		<property name="limit">
+			<value>30</value>
+		</property>
+
+
+		<property name="dateFormatMapJS">
+			<map>
+				<entry key="yyyy-MM-dd"        value="Y-m-d"/>
+				<entry key="yyyy/MM/dd"        value="Y/m/d"/>
+				<entry key="MM-dd-yyyy"        value="m-d-Y"/>
+				<entry key="MM/dd/yyyy"        value="m/d/Y"/>
+			</map>
+		</property>
+
+		<property name="dateAltFormatMapJS">
+			<map>
+				<entry key="yyyy-MM-dd"        value="d|md|m-d|m/d|ymd|y-m-d|y/m/d|Ymd|Y-m-d|Y/m/d"/>
+				<entry key="yyyy/MM/dd"        value="d|md|m-d|m/d|ymd|y-m-d|y/m/d|Ymd|Y-m-d|Y/m/d"/>
+				<entry key="MM-dd-yyyy"        value="d|md|m-d|m/d|ymd|m-d-y|m/d/y|mdY|m-d-Y|m/d/Y"/>
+				<entry key="MM/dd/yyyy"        value="d|md|m-d|m/d|ymd|m-d-y|m/d/y|mdY|m-d-Y|m/d/Y"/>
+			</map>
+		</property>
+
+		<property name="outlineMap">
+			<map>
+				<entry key="LAYOUT"        value="/jsp/common/outline/Outline.layout.jsp"/>
+				<entry key="MAIN"          value="/jsp/common/outline/Outline.main.jsp"/>
+				<entry key="MAIN_GRID"     value="/jsp/common/outline/Outline.main_grid.jsp"/>
+				<entry key="BLANK"     value="/jsp/common/outline/Outline.blank.jsp"/>
+				<entry key="COMPONENT" value="/jsp/common/outline/Outline.component.jsp"/>
+				<entry key="IFRAME"   value="/jsp/common/outline/Outline.iframe.jsp"/>
+				<entry key="POPUP"    value="/jsp/common/outline/Outline.popup.jsp"/>
+				<entry key="EXCEL"    value="/jsp/common/outline/Outline.excel.jsp"/>
+				<entry key="AJAX"     value="/jsp/common/outline/Outline.ajax.jsp"/>
+				<entry key="ALL_IN_ONE" value="/jsp/common/outline/Outline.all_in_one.jsp"/>
+
+				<entry key="DATA_JSON"        value="/jsp/common/data/Data.r_json.jsp"/>
+				<entry key="DATA_JSON_DETAIL" value="/jsp/common/data/Data.r_json_detail.jsp"/>
+				<entry key="DATA_JSON_LIST_TO_MAP"  value="/jsp/common/data/Data.r_json_list_to_map.jsp"/>
+				<entry key="DATA_FLEX"        value="/jsp/common/data/Data.r_flex_data.jsp"/>
+				<entry key="DATA_TREE"        value="/jsp/common/data/Data.r_tree.jsp"/>
+				<entry key="DATA_JSON_TREE"        value="/jsp/common/data/Data.r_json_tree.jsp"/>
+
+				<entry key="MSG_IFRAME"       value="/jsp/common/message/iframe.jsp"/>
+				<entry key="MSG_HTML"         value="/jsp/common/message/html.jsp"/>
+				<entry key="MSG_AJAX"         value="/jsp/common/message/ajax.jsp"/>
+			</map>
+		</property>
+
+		<property name="configMap"> 
+			<map>
+				<entry key="FTP_SEVER_IP"     value="70.12.101.219"/>
+				<entry key="WAS_SEVER_IP_DEV" value="127.0.0.1,localhost"/>
+				<entry key="WAS_SEVER_IP"     value="192.168."/>   <!-- 운영 서버 IP  TODO --> 
+			</map>
+		</property>
+
+	</bean>
+	<bean id="hoFtpClient" class="project.jun.util.HoFtpClient">
+		<property name="serverInfoMap">
+			<map>
+				<entry key="server1" value="ip, port, id, password, UNIX"/>
+			</map>
+		</property>
+
+	</bean>
+
+</beans>

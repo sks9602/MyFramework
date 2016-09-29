@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Thu Sep 01 17:09:27 KST 2011-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Menu">
+<!-- 
+CREATE TABLE HO_T_SYS_MENU {
+	SVC_CD VARCHAR2(10), /* 서비스 구분[SYS001] */
+	MENU_ID VARCHAR2(10), /* 메뉴 ID */
+	MENU_NM VARCHAR2(30),  /* 메뉴 명 */
+	P_MENU_ID VARCHAR2(10), /*  상위 메뉴 ID */
+	USE_YN VARCHAR2(1), /* 사용 여부 */
+	LINK_URL VARCHAR2(50), /* 링크 URL */
+	LINK_TYPE_CD VARCHAR2(10), /* 메뉴 연계 형태 [SYS002] */
+	DISPLAY_YN VARCHAR2(1),  /* 메뉴에 표시 여부 */
+	AUTH_APPLY_YN VARCHAR2(1), /* 권한 적용 여부 */
+	ICON_CLS VARCHAR2(20)
+}
+
+
+CREATE TABLE HO_T_SYS_BUTTON (
+	BTN_ID VARCHAR2(30) NOT NULL,   /* 버튼 구분 */
+	BTN_NM VARCHAR2(30),     /* 버튼 명 */
+	ICON_CLS VARCHAR2(20),     /* ICON */
+  AUTH_LEVEL_CD VARCHAR2(10),    /* 버튼 권한 LEVEL [SYS003] */
+  RESOURCE_ID VARCHAR2(10) /* MESSAGE RESOURCE */
+);
+
+
+CREATE TABLE HO_T_SYS_MENU_METHOD (
+	SVC_CD	VARCHAR2(10) NOT NULL	, /* 서비스 구분[SYS001] */
+	MENU_ID	VARCHAR2(10) NOT NULL	, /* 메뉴 ID */
+	ACTION_FLAG   VARCHAR2(20) NOT NULL, /* ACTION_FLAG */
+	METHOD      VARCHAR2(20), /* 메소드 */
+	METHOD_NM   VARCHAR2(50), /* 메소드 설명 */
+	USE_YN  VARCHAR2(1)  DEFAULT 'Y', /* 사용 여부 */
+	FUNC_LEVEL_CD VARCHAR2(10), /* 기능 LEVEL [SYS005] */
+	AUTH_APPLY_YN VARCHAR2(1)  DEFAULT 'Y' /* 권한 적용 여부 */
+)
+
+ -->
+ 
+<!--  메뉴 목록을 조회 -->
+<select id="selectMenuList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT MENU_ID ID, MENU_NM TEXT, P_MENU_ID P_ID, MENU_ID, MENU_NM, P_MENU_ID, SVC_CD, USE_YN, LINK_URL, LINK_TYPE_CD, DISPLAY_YN, AUTH_APPLY_YN, ICON_CLS
+  FROM HO_T_SYS_MENU TSM
+ WHERE 1=1
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+			<if test="SVC_CD != null and SVC_CD != '' ">
+			AND SVC_CD = #{SVC_CD}
+			</if>
+			<if test="USE_YN != null and USE_YN != '' ">
+			AND USE_YN = #{USE_YN}
+			</if>
+			<if test="MENU_NM != null and MENU_NM != '' ">
+			AND MENU_NM = #{MENU_NM}
+			</if>
+		</otherwise>
+	</choose>
+</select>
+
+
+<!--  메뉴 상세정보 조회 -->
+<select id="selectMenuInfo" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT MENU_ID ID, P_MENU_ID P_ID, MENU_ID, MENU_NM, P_MENU_ID, SVC_CD, USE_YN, LINK_URL, LINK_TYPE_CD, DISPLAY_YN, AUTH_APPLY_YN, ICON_CLS
+  FROM HO_T_SYS_MENU TSM
+ WHERE 1=1
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+	AND SVC_CD = #{SVC_CD}
+	AND MENU_ID = #{MENU_ID}
+	   </otherwise>
+	</choose>
+</select>
+   
+<!--  메뉴 상세 기능 목록 수 조회 -->
+<select id="selectMethodListCnt" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT COUNT(*) CNT
+  FROM HO_T_SYS_MENU_METHOD TSM
+ WHERE 1=1
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+	AND SVC_CD = #{SVC_CD}
+	AND MENU_ID = #{MENU_ID}
+	   </otherwise>
+	</choose>
+</select> 
+   
+<!--  메뉴 상세 기능 목록 조회 -->
+<select id="selectMethodList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT SVC_CD, MENU_ID, ACTION_FLAG, METHOD, METHOD_NM, USE_YN, FUNC_LEVEL_CD, AUTH_APPLY_YN
+  FROM HO_T_SYS_MENU_METHOD TSM
+ WHERE 1=1
+    <choose>
+	   <when test='METADATA == "Y"'>
+	   		AND 'N' = 'Y'
+	   </when>
+	   <otherwise>
+	AND SVC_CD = #{SVC_CD}
+	AND MENU_ID = #{MENU_ID}
+	   </otherwise>
+	</choose>
+</select>   
+
+<!--  버튼 목록 조회 -->
+<select id="selectButtonList" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT BTN_ID, BTN_NM, ICON_CLS, AUTH_LEVEL_CD, RESOURCE_ID, GLYPH
+  FROM HO_T_SYS_BUTTON TSM
+ WHERE 1=1
+</select> 
+ 
+<!--  버튼 상태 조회 -->
+<select id="selectButtonInfo" parameterType="queryParameterMap" resultType="queryResultMap">
+SELECT 'N' IS_AVAILABLE, '아직 안됩니다.' BTN_MSG
+  FROM DUAL
+ WHERE 1=1
+</select>  
+
+ 
+ 
+<!--  메뉴 상세 정보 수정  --> 
+<update id="mergeHoTSysMenu" parameterType="queryParameterMap">
+MERGE INTO  HO_T_SYS_MENU HTSM USING DUAL   /*  */
+   ON ( 
+	   		HTSM.SVC_CD        = #{SVC_CD}          /*  */
+	    AND HTSM.MENU_ID       = #{MENU_ID}         /*  */
+      ) 
+ WHEN MATCHED THEN UPDATE SET
+      HTSM.MENU_NM       = #{MENU_NM}         /*  */
+     ,HTSM.LINK_TYPE_CD  = #{LINK_TYPE_CD}    /*  */
+     ,HTSM.LINK_URL      = #{LINK_URL}        /*  */
+     ,HTSM.USE_YN        = #{USE_YN}          /*  */
+     ,HTSM.DISPLAY_YN    = #{DISPLAY_YN}      /*  */
+     ,HTSM.ICON_CLS      = #{ICON_CLS}        /*  */
+     ,HTSM.AUTH_APPLY_YN = #{AUTH_APPLY_YN}   /*  */
+ WHEN NOT MATCHED THEN
+  INSERT (  SVC_CD              /*  */
+           ,MENU_ID             /*  */
+           ,MENU_NM             /*  */
+           ,P_MENU_ID           /*  */
+           ,LINK_TYPE_CD        /*  */
+           ,LINK_URL            /*  */
+           ,USE_YN              /*  */
+           ,DISPLAY_YN          /*  */
+           ,ICON_CLS            /*  */
+           ,AUTH_APPLY_YN       /*  */
+  ) VALUES ( #{SVC_CD}             /* SVC_CD -  */
+            ,#{MENU_ID}            /* MENU_ID -  */
+            ,#{MENU_NM}            /* MENU_NM -  */
+            ,#{P_MENU_ID}          /* P_MENU_ID -  */
+            ,#{LINK_TYPE_CD}       /* LINK_TYPE_CD -  */
+            ,#{LINK_URL}           /* LINK_URL -  */
+            ,#{USE_YN}             /* USE_YN -  */
+            ,#{DISPLAY_YN}         /* DISPLAY_YN -  */
+            ,#{ICON_CLS}           /* ICON_CLS -  */
+            ,#{AUTH_APPLY_YN}      /* AUTH_APPLY_YN -  */
+   )
+</update>
+
+
+<!--  메뉴 상세 정보 수정  --> 
+<update id="mergeHoTSysMenuMethod" parameterType="queryParameterMap">
+MERGE INTO HO_T_SYS_MENU_METHOD HTSMM USING DUAL   /*  */
+   ON ( HTSMM.SVC_CD        = #{SVC_CD}           /*  */
+    AND HTSMM.MENU_ID       = #{MENU_ID}          /*  */
+    AND HTSMM.ACTION_FLAG   = #{ACTION_FLAG}    /*  */
+   ) 
+ WHEN MATCHED THEN UPDATE SET
+      HTSMM.METHOD        = #{METHOD}           /*  */
+     ,HTSMM.METHOD_NM     = #{METHOD_NM}        /*  */
+     ,HTSMM.USE_YN        = #{USE_YN}           /*  */
+     ,HTSMM.AUTH_APPLY_YN = #{AUTH_APPLY_YN}    /*  */
+     ,HTSMM.FUNC_LEVEL_CD = #{FUNC_LEVEL_CD}    /*  */
+ WHEN NOT MATCHED THEN
+  INSERT (  SVC_CD               /*  */
+           ,MENU_ID              /*  */
+           ,ACTION_FLAG        /*  */
+           ,METHOD               /*  */
+           ,METHOD_NM            /*  */
+           ,USE_YN               /*  */
+           ,AUTH_APPLY_YN        /*  */
+           ,FUNC_LEVEL_CD        /*  */
+  ) VALUES ( #{SVC_CD}              /* SVC_CD -  */
+            ,#{MENU_ID}             /* MENU_ID -  */
+            ,#{ACTION_FLAG}         /* ACTION_FLAG -  */
+            ,#{METHOD}              /* METHOD -  */
+            ,#{METHOD_NM}           /* METHOD_NM -  */
+            ,#{USE_YN}              /* USE_YN -  */
+            ,#{AUTH_APPLY_YN}       /* AUTH_APPLY_YN -  */
+            ,#{FUNC_LEVEL_CD}       /* FUNC_LEVEL_CD -  */
+   )
+</update>
+
+<!--  SCP고유 로그 테이블에 로그를 쌓는다. -->
+<update id="forceInsertScpWorkLog" parameterType="queryParameterMap">
+INSERT INTO V_TB_AM_COM_PAGELOG 
+(
+ SYSTEM_ID   ,  RESNO       ,  LOGIN_TIME  ,  PAGE_ID     ,  
+ ACTION_TYPE ,  USER_IP     ,  NAME        ,  ELAPSED_TIME,  
+ SUCCESS_FLAG,  REMARK      ,  ROW_COUNT   ,  USER_ID     
+)
+SELECT 'ITII',  RESNO       ,  SYSDATE     ,  #{MENU_ID},
+        #{WORK},  #{IP}        , NAME        ,  #{ELAPSED_TIME}/1000,
+        #{SUCCESS_FLAG},  NULL , 1,  MEMBER_NO     
+  FROM V_HR_MEMBER HM
+ WHERE COMPANY_CD = #{COMPANY_CD}
+   AND MEMBER_NO  = #{USER_EMPID}
+</update>
+
+
+</mapper>

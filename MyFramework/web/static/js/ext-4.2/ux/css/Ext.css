@@ -1,0 +1,545 @@
+.bottom-border {padding: 0 15 0 0;background:#ffffff;margin : 0;}
+.grid-row-span .x-grid3-row { border-bottom: 0; }
+.grid-row-span .x-grid3-col { border-bottom: 1px solid #ededed; }
+.grid-row-span .row-span {  border-bottom: 1px solid #fff; }
+.grid-row-span .row-span-first { position: relative; }
+.grid-row-span .row-span-first .x-grid3-cell-inner { position: absolute; }
+.grid-row-span .row-span-last { border-bottom: 1px solid #ededed; }
+
+.grid-header-textfield { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/text_signature.png) no-repeat !important; width:16px; height:16px; float:left;  } 
+.grid-header-numberfield { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/calculator_edit.png) no-repeat !important; width:16px; height:16px; float:left;  }
+/*.grid-header-datefield { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/calendar.gif) no-repeat !important; width:16px; height:16px; float:left;  } */
+.grid-header-datefield { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/ui-datefield-icon.png) no-repeat !important; width:16px; height:16px; float:left;  }
+/* .grid-header-combobox { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/grid_ic_combobox.gif) no-repeat !important; width:16px; height:16px; float:left; */  
+.grid-header-combobox { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/ui-combo-box-edit-icon.png) no-repeat !important; width:16px; height:16px; float:left;  }
+/* .grid-header-combotipple { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/grid_ic_combobox.gif) no-repeat !important; width:16px; height:16px; float:left;  } */
+.grid-header-combotipple { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/ui-combo-box-edit-icon.png) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-combogrid { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/ui-combo-box-edit-icon.png) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-combotree { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/ui_tree_1.gif) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-timefield { background:transparent url(/s/static/js/ext-4.2/ux/image/grid/grid_ic_timefield.gif) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-email { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/email_edit.png) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-link { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/link.png) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-action { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/anchor.png) no-repeat !important; width:16px; height:16px; float:left;  }
+.grid-header-popup { background:transparent url(/s/static/js/ext-4.2/ux/image/icons/zoom.png) no-repeat !important; width:16px; height:16px; float:left;  }
+
+.x-form-type-text textarea.x-form-invalid-field, .x-form-type-text input.x-form-invalid-field,
+.x-form-type-password textarea.x-form-invalid-field,
+.x-form-type-password input.x-form-invalid-field,
+.x-form-type-number textarea.x-form-invalid-field,
+.x-form-type-number input.x-form-invalid-field,
+.x-form-type-email textarea.x-form-invalid-field,
+.x-form-type-email input.x-form-invalid-field,
+.x-form-type-search textarea.x-form-invalid-field,
+.x-form-type-search input.x-form-invalid-field,
+.x-form-type-tel textarea.x-form-invalid-field,
+.x-form-type-tel input.x-form-invalid-field {
+  background-color: white;
+  background-image: none;
+  background-repeat: repeat-x;
+  background-position: bottom;
+  border-color: #cc3300;
+  ime-mode:active;
+}
+
+.x-form-type-korean {
+-webkit-ime-mode:active; 
+-moz-ime-mode:active; 
+-ms-ime-mode:active; 
+ime-mode:active; 	
+}
+
+/** badge �뒪���씪(iphone notification媛숈� �슚怨�)-(�닽�옄留� �굹�삤�뒗 �삎�깭) �떆�옉
+ * 李멸퀬 url : http://jsfiddle.net/ThinkingStiff/mLW47/
+ * �궗�슜踰�) <div class="badge">1</div>
+ *       <div class="badge">9999+</div>
+**/
+.badge {
+    background:             radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background:    -moz-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background:     -ms-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background:      -o-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background: -webkit-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background-color: red;
+    border: 2px solid white;
+    border-radius: 10px; /* one half of ( (border * 2) + height + padding ) */
+    box-shadow: 1px 1px 1px black;
+    color: white;
+    font: 10px/10px Helvetica, Verdana, Tahoma;
+    padding: 0px 1px 0 1px;
+    height: 14px; 
+    text-align: center;
+    min-width: 14px;
+}
+.badge {
+    float: center;
+    position: relative;
+}
+/* default �븳湲� �쟻�슜 
+input {
+	ime-mode:active;
+}
+*/
+/*
+.badge {
+    background:             radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background:    -moz-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background:     -ms-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background:      -o-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background: -webkit-radial-gradient( 5px -9px, circle, white 8%, red 26px );
+    background-color: red;
+    border: 2px solid white;
+    border-radius: 12px;  -- one half of ( (border * 2) + height + padding )
+    box-shadow: 1px 1px 1px black;
+    color: white;
+    font: bold 15px/13px Helvetica, Verdana, Tahoma;
+    height: 16px; 
+    padding: 4px 3px 0 3px;
+    text-align: center;
+    min-width: 14px;
+}
+
+.badge {
+    float: left;
+    left: 25px;
+    margin: 6px;
+    position: relative;
+    top: 25px; 
+}
+*/
+/** badge �뒪���씪(iphone notification媛숈� �슚怨�)-(�닽�옄留� �굹�삤�뒗 �삎�깭) �걹 **/
+
+/** badge �뒪���씪(iphone notification媛숈� �슚怨�)-(Text + �닽�옄) �떆�옉  
+ * @TODO 蹂�寃� �븘�슂...
+ * 李멸퀬 url : http://codepen.io/rnarian/pen/hszeo  && http://jsfiddle.net/josedvq/Jyjjx/45/ (anchor tag css�쟻�슜�떆 李멸퀬)
+ * �궗�슜踰�) <a href="#">Badge <span>1</span></a>
+
+a {
+    position: relative;
+    padding: 3px 5px;
+    font:bold 12px/12px "Helvetica Neue", Helvetica, Arial, sans-serif; 
+    color: #333;
+    text-decoration: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,.6);
+}
+
+span {
+    position: absolute;
+    top:-5px;
+    right: -2px;
+    padding: 3px 9px;
+    border: 2px solid white;
+    border-radius:100px;
+    background: -webkit-linear-gradient(top, #FF6969 0%,#ff0000 100%);
+    box-shadow: 0 1px 2px rgba(0,0,0,.5), 0 1px 4px rgba(0,0,0,.4), 0 0 1px rgba(0,0,0,.7) inset, 0 10px 0px rgba(255,255,255,.11) inset; 
+    -webkit-background-clip: padding-box;
+    font:bold 10px/10px "Helvetica Neue", sans-serif; 
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 -1px 0 rgba(0,0,0,.6);
+}��
+ badge �뒪���씪(iphone notification媛숈� �슚怨�)-( Text + �닽�옄) �걹 **/
+
+
+/* TextField �뀒�몢由� �뾾�븷湲� (Readonly�씪�븣.)*/
+.x-form-text-ux-readonly  {
+	color:black; border:0; background-color:yourcolor; background-image:none; padding: 1px 3px 2px 3px;
+}
+/**
+ * circle 踰꾪듉 
+ * 李멸퀬 url : http://jsfiddle.net/josedvq/Jyjjx/45/
+ * <div class="round-button"><div class="round-button-circle"><a href="http://example.com" class="round-button">Button!!</a></div></div>
+ */
+.round-button {
+	width:50px;
+}
+.round-button-circle {
+	width: 100%;
+	height:0;
+	padding-bottom: 100%;
+    border-radius: 50%;
+	border:5px solid #cfdcec;
+    overflow:hidden;
+    background: #4679BD; 
+    box-shadow: 0 0 3px gray;
+}
+.round-button-circle:hover {
+	background:#30588e;
+}
+.round-button a {
+    display:block;
+	float:left;
+	width:100%;
+	padding-top:50%;
+    padding-bottom:50%;
+    line-height:1em;
+	text-align:center;
+	color:#e2eaf3;
+    font-family:Verdana;
+    font-size:1.2em;
+    font-weight:bold;
+    text-decoration:none;
+}
+/*
+.round-button a {
+    display:block;
+	float:left;
+	width:100%;
+	padding-top:50%;
+    padding-bottom:50%;
+	line-height:1em;
+	margin-top:-0.5em;
+    
+	text-align:center;
+	color:#e2eaf3;
+    font-family:Verdana;
+    font-size:1.2em;
+    font-weight:bold;
+    text-decoration:none;
+}
+*/
+
+
+/*
+ Grid Header css start
+*/
+.x-column-header {
+	background: -moz-linear-gradient(#f9f9f9, #e3e4e6); /*gecko*/
+    background: -ms-linear-gradient(#f9f9f9, #e3e4e6); /*IE10*/
+    background: -o-linear-gradient(#f9f9f9, #e3e4e6); /*opera 11.10+*/
+    background: linear-gradient(#f9f9f9, #e3e4e6); /*future CSS3 browsers*/
+    -pie-background: linear-gradient(#f9f9f9, #e3e4e6); /*PIE*/
+	background-image: -webkit-gradient(linear,50% 0,50% 100%,color-stop(0%,#f9f9f9),color-stop(100%,#e3e4e6)); 
+	background-image: -webkit-linear-gradient(top,#f9f9f9,#e3e4e6); 
+}
+.x-grid-header-ct {
+	background: -moz-linear-gradient(#f9f9f9, #e3e4e6); /*gecko*/
+    background: -ms-linear-gradient(#f9f9f9, #e3e4e6); /*IE10*/
+    background: -o-linear-gradient(#f9f9f9, #e3e4e6); /*opera 11.10+*/
+    background: linear-gradient(#f9f9f9, #e3e4e6); /*future CSS3 browsers*/
+    -pie-background: linear-gradient(#f9f9f9, #e3e4e6); /*PIE*/
+	background-image: -webkit-gradient(linear,50% 0,50% 100%,color-stop(0%,#f9f9f9),color-stop(100%,#e3e4e6)); 
+	background-image: -webkit-linear-gradient(top,#f9f9f9,#e3e4e6); 
+}
+/*
+ Grid Header css end
+*/
+
+
+/* Background �깋�긽 
+.x-border-layout-ct { background-color : white }
+*/
+
+.x-form-item-label-required {
+    /* color: red !important; */
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/field_required.gif) no-repeat right; width:100px; height:22px; float:left; /* 9 * 8 */
+    background-position: right 3px center;
+}
+
+/* Form Field �씪踰쮋ss */
+.x-form-item-label {
+    background-color : #ddd;
+    height : 22px;
+    vertical-align: middle;
+    margin-top : 0px;
+    padding : 0px 0 0 4px;
+    line-height : 22px;
+}
+
+/* Form Field Help icon */
+.x-form-item-label-icon-help {
+	background-image:url(/s/static/js/ext-4.2/ux/image/icons/help.png) !important;
+	background-repeat:no-repeat;
+	background-position:center;
+}
+
+
+.grid_label {
+    background-color : #ddd;
+    height : 22px;
+    vertical-align: middle;
+    margin-top : 0px;
+    padding : 0px 0 0 5px;
+    width : 120px;
+    line-height : 22px;
+}
+
+.x-autocontainer-form-item,
+.x-anchor-form-item,
+.x-vbox-form-item,
+.x-table-form-item {
+  margin-bottom: 0px;
+}
+
+.x-fieldset {
+	border: 1px solid #b5b8c8;
+	padding: 0 10px;
+	margin: 0 0 1px;
+}
+
+/* 寃��깋議곌굔 collapse 踰꾪듉 �쐞移�   */
+.top-search-title .x-tool {
+	left: 80px !important; 
+}
+
+
+/* �긽�떒 寃��깋議곌굔 css */
+.top-search-title {
+	background-image: -webkit-linear-gradient(top, #33e9ff, #22e1ff);
+	background-color:#B2CCFF; 
+}
+
+.top-search-title>.x-panel-header-default {
+	background-image: -webkit-linear-gradient(top, #33e9ff, #22e1ff);
+	background-color:#F0F5FF; 
+}
+.top-search-title>.x-toolbar-default {
+	background-image: -webkit-linear-gradient(top, #33e9ff, #22e1ff);
+	background-color:#F0F5FF; 
+}
+
+.top-search-title-icon {
+    color: red !important;
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/application_go.png) no-repeat right; width:100px; height:22px; float:left;
+}
+
+.top-search-btn-icon {
+    color: red !important;
+    background:transparent url(/s/static/js/ext-4.2/ux/image/fam/delete.gif) no-repeat right;;
+}
+/* �긽�떒 寃��깋議곌굔 css */
+
+/** 踰꾪듉 css �떆�옉 */
+.btn-icon-save {
+    color: red !important;
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/database_save.png) no-repeat right;;
+}
+.btn-icon-download {
+    color: red !important;
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/icon_download.gif) no-repeat right;;
+}
+.btn-icon-delete {
+    color: red !important;
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/database_delete.png) no-repeat right;;
+}
+.btn-icon-add {
+    color: red !important;
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/application_add.png) no-repeat right;;
+}
+.btn-icon-find {
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/find.png) no-repeat right;;
+}
+.btn-icon-new {
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/page_new.gif) no-repeat right;;
+}
+
+.btn-icon-expand {
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/tree_expand.gif) no-repeat right;;
+}
+
+.btn-icon-collapse {
+    background:transparent url(/s/static/js/ext-4.2/ux/image/icons/tree_collapse.gif) no-repeat right;;
+}
+/** 踰꾪듉 css �걹 */
+
+
+/* �꽑�깮�맂 tab�쓽 �깋 */
+.x-tab-default-bottom-active, .main_tabpanel .x-tab-default-top-active, .main_tabpanel .x-tab-default-left-active, .main_tabpanel .x-tab-default-right-active {
+	color : red;
+	background-image: -webkit-linear-gradient(top, #F70606, #f5f9fe 25%, #fffffd 45%);
+	background-color:#ffffff; 
+}
+/* tab�쓽 icon */
+.tabs-icon {
+    background-image:url(/s/static/js/ext-4.2/ux/image/tab/tabs.gif ) !important;
+}
+
+/* tab�쓽 �넂�씠 議곗젅 �떆�옉*/
+.main_tabpanel>.x-tab-bar-default-horizontal {
+	height: 30px;
+}
+
+.main_tabpanel> .x-tab-bar-strip {
+    top: 26px !important; /* Default value is 20, we add 20 = 40 */
+}
+
+.main_tabpanel> .x-tab-bar .x-tab-bar-body {
+    height: 28px !important; /* Default value is 23, we add 20 = 43 */
+    border: 0 !important; /* Overides the border that appears on resizing the grid */
+}
+.main_tabpanel> .x-tab-bar .x-tab-bar-body .x-box-inner {
+    height: 26px !important; /* Default value is 21, we add 20 = 41 */
+} 
+
+.main_tabpanel> .x-tab-bar .x-tab-bar-body .x-box-inner {
+    height: 26px !important; /* Default value is 21, we add 20 = 41 */
+}
+
+.main_tabpanel> .x-tab-bar .x-tab-bar-body .x-box-inner .x-tab {
+    height: 26px !important; /* Default value is 21, we add 20 = 41 */
+}
+
+.main_tabpanel> .x-tab-bar .x-tab-bar-body .x-box-inner .x-tab button {
+    height: 18px !important; /* Default value 13, we add 20 = 33 */
+    line-height: 18px !important; /* Default value 13, we add 20 = 33 */
+}
+
+.main_tabpanel .x-tab-inner{
+	font-size : 13px;
+}
+/* tab�쓽 �넂�씠 議곗젅 �걹 */
+
+.detail_tabpanel .x-tab-inner{
+	font-size : 12px;
+}
+/* form submit. */
+.x-message-box .ext-mb-download {
+    background: url("/s/static/js/ext-4.2/ux/image/msg/download.gif") no-repeat scroll 6px 0px transparent;
+    height: 52px!important;
+}
+
+/*
+.icon-toolbar-indicator {
+	width :10px;
+	height:10px;
+}
+*/
+
+/* Flow 洹몃━湲� �걹*/
+#process-div {
+    margin-left: auto;
+    margin-right: auto;
+    width:200px;
+    z-index:20000;
+}
+#process-div .process {
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    background: #F6F6F6;
+    border: 2px solid #ccc;
+    margin-top: 2px;
+    padding: 5px 5px;
+    color: #555;
+}
+#process-div .process h3 {
+    margin: 0 0 5px;
+    font-weight: bold;
+    font-size: 12px;
+}
+#process-div .process p {
+    margin: 0;
+}
+#process-div .arrow-down {
+	background: url("/s/static/js/ext-4.2/ux/image/icons/arrow_down.png") no-repeat scroll 6px 0px transparent;
+	background-position: center; 
+    height : 20px;
+}
+/* Flow 洹몃━湲�  �걹*/
+
+/* ComboboxGrouping.js�쓽 Grouping �떆�옉 */
+.combobox-grouped-list .x-boundlist-item {
+  padding: 1px 3px 0 10px;
+}
+.combobox-grouped-list .combobox-group-header {
+  padding: 4px;
+  font-weight: bold;
+  border-bottom: 1px solid #ddd;
+}
+/* ComboboxGrouping.js�쓽 Grouping �걹 */
+
+/* Grid loading mask image change �떆�옉  - �븞�맖... */
+.x-mask-msg .custom-loader {
+    background-image: url(http://loadinggif.com/images/image-selection/1.gif);
+}
+/* Grid loading mask image change �걹 */
+
+/* input type="text"�뿉�꽌 �뮘履쎌뿉 'X'�븞�굹�삤寃�..*/
+::-ms-clear { display: none; }
+
+/*
+ * New Task Form
+ */
+.tasks-new-form .x-form-item {
+    margin: 2px 3px 2px 2px;
+}
+.tasks-new-form .tasks-new {
+    background-position: 4px 5px;
+}
+.tasks-new-form .x-form-field, .x-form-display-field {
+    font-size: 12px;
+}
+/* tootip , error-message-box size 議곗젙 */
+.x-border-box .x-tip, .x-border-box .x-tip * {
+  box-sizing: content-box;
+}
+
+/* Grid �뿉�꽌 留곹겕�뿉�꽌 �궗�슜 �븷 text css */
+.in_grid_url_link {
+	cursor : pointer;
+	color : #63f;
+}
+
+/* grid height */
+.height30 .x-grid-cell {  
+     background-color: #FFFFDD;  
+     height: 30px;
+} 
+
+/**
+ * textfeild �븵�뮘�뿉 異붽� 臾몄옄 �궫�엯 李멸퀬.
+ * https://fiddle.sencha.com/#fiddle/aek
+ 
+ 	cls: 'my-field', // <-- �븵�뮘 媛먯떥湲� 異붽��슜..
+	beforeBodyEl: '<span class="my-field-prefix">$</span>', //  <-- �븵�뮘 媛먯떥湲� 異붽��슜..
+	afterBodyEl: '<span class="my-field-suffix">.00</span>', //  <-- �븵�뮘 媛먯떥湲� 異붽��슜..
+ 
+ */
+.my-field .x-form-trigger-wrap {
+    width: auto;
+    display: inline-table;
+    vertical-align: top;
+
+    /* this part only works in modern browsers IE10+ */
+    /* for IE8/9 support you'd need to hard code a specific width */
+    width: calc(100% - 60px); /* 100% minus the width of the prefix and suffix elements */
+}
+
+.my-field-prefix, .my-field-suffix {
+    display: inline-block;
+    vertical-align: top;
+    text-align: center;
+    background: #eaeaea;
+    width: 30px;
+    font-size: 15px; /* $form-field-font-size + 2 */
+    border-color: #cecece; /* $form-text-field-border-color */
+    border-style: solid; /* $form-text-field-border-style */
+    height: 22px; /* $form-field-height */
+    line-height: 24px; /* form-field-height */
+}
+
+.my-field-prefix {
+    border-width: 1px 0 1px 1px; /* $form-text-field-border-width 0 $form-text-field-border-width $form-text-field-border-width */
+    border-radius: 3px 0 0 3px;
+}
+
+.my-field-suffix {
+    border-width: 1px 1px 1px 0; /* $form-text-field-border-width $form-text-field-border-width $form-text-field-border-width 0 */
+    border-radius: 0 3px 3px 0;
+}
+
+.x-form-num-field-align-right{
+	text-align: right;
+}
+
+.x-form-date-enlarge {
+	width : 110px !important;
+}
+/*
+.x-item-disabled .x-form-item-label,
+.x-item-disabled .x-form-field,
+.x-item-disabled .x-form-display-field,
+.x-item-disabled .x-form-cb-label,
+.x-item-disabled .x-form-trigger {
+  filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=90);
+  opacity: 0.9;
+}
+*/

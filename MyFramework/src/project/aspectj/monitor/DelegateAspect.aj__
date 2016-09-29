@@ -1,0 +1,28 @@
+package project.aspectj.monitor;
+
+import org.apache.log4j.Logger;
+import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.annotation.Aspect;
+
+import net.sf.infrared.aspects.aj.AbstractApiAspect;
+
+@Aspect
+public class DelegateAspect   extends AbstractApiAspect {
+
+	protected  Logger          logger     = Logger.getLogger(DelegateAspect.class);
+
+	private String layer = "Delegate";
+		
+	@Pointcut(value= "execution(public *  com..delegate.*Delegate.*(..)  )")
+	public void apiExecution() { // com..delegate.*Delegate
+		 
+	}
+
+	public String getLayer() {
+	    return this.layer; 
+	}
+	
+	public void setLayer(String layer) {
+	    this.layer = layer; 
+	}
+}

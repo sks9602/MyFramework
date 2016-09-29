@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<import resource="./applicationContext-db.xml"/>
+	<import resource="./applicationContext-tx.xml"/>
+	<import resource="./applicationContext-aop.xml"/>
+	<import resource="./applicationContext-cache.xml"/>
+
+	<!-- bean id="jdbcProfiler" class="project.aspectj.monitor.JdbcAspect"></bean -->
+	
+	<!-- 프로젝트에서 사용하는 메인 DB  -->
+	<bean id="ProjectDao" class="project.jun.dao.HoDao" init-method="loadInitData"><!--  init-method="loadInitData" 공통코드를 cache에 로드하기위한 method선언. -->
+		<property name="sqlSessionTemplate"><ref bean="projectSqlSessionReuseTemplate"/></property>
+		<property name="dataSource"><ref bean="projectDataSource"/></property>
+		<property name="cache">
+			<ref bean="ehcache"/>
+		</property>
+		<property name="cacheMap">
+			<map>
+				<entry key="CodeDAO.selectCodeListCombo"          value="CODE_CACHE,GROUP_CODE,CODE"/>
+				<entry key="CodeDAO.selectSearchCodeListCombo"    value="CODE_CACHE,GROUP_CODE,CODE"/>
+				<entry key="MainDAO.selectTableColumnList"        value="CODE_CACHE,TABLE_NAME,COLUMN_NAME"/>
+				<entry key="Sample.selectSqlInfo"                 value="SQL_CACHE,SQL_ID,COLUMN_NAME"/>
+			</map>
+		</property>
+		<property name="initDataSqlId"  value="Code.selectCodeList"></property>	<!--  공통코드 쿼리 ID -->	
+		<property name="initDataCache"  value="CODE_CACHE"></property>		<!--  cache 이름 -->	
+		<property name="initDataColumn" value="CD"></property>	<!--  공통코드 구분 컬럼 -->	
+		<property name="initDataGroupColumn" value="P_CD"></property>	<!--  공통코드 그룹 컬럼 -->	
+		<property name="initColumnSqlId"  value="Combo.selectColumnList"></property>	<!--  컬럼별  정보. -->	
+		<property name="initColumnCodeMapSqlId"  value="Combo.selectColumnCodeMapList"></property>	<!--  컬럼별 코드 사용 공통코드 정보. -->	
+		<property name="initButtonSqlId"  value="Menu.selectButtonList"></property>	<!--  버튼 정보. -->	
+	</bean>
+
+	<bean id="proxyProjectDao" class="org.springframework.aop.framework.ProxyFactoryBean" >
+		<property name="target">
+			<ref bean="ProjectDao"/>
+		</property>
+		<property name="proxyTargetClass" value="true"/>
+		<property name="interceptorNames">
+			<list>
+				<value>cacheAdvisor</value>
+				<value>preDAOLoggingAdvisor</value>
+				<value>postDAOLoggingAdvisor</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 프로젝트에서 사용하는 메인 DB  -->
+	<!--   bean id="ProjectDaoBatch" class="project.jun.dao.HoDao" >
+		<property name="sqlSessionTemplate"><ref bean="projectSqlSessionBatchTemplate"/></property>
+		<property name="dataSource"><ref bean="projectDataSource"/></property>
+		<property name="cache">
+			<ref bean="ehcache"/>
+		</property>
+		<property name="cacheMap">
+			<map>
+				<entry key="CodeDAO.selectCodeListCombo"          value="CODE_CACHE,GROUP_CODE,CODE"/>
+				<entry key="CodeDAO.selectSearchCodeListCombo"    value="CODE_CACHE,GROUP_CODE,CODE"/>
+				<entry key="MainDAO.selectTableColumnList"        value="CODE_CACHE,TABLE_NAME,COLUMN_NAME"/>
+				<entry key="Sample.selectSqlInfo"                 value="SQL_CACHE,SQL_ID,COLUMN_NAME"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="proxyProjectDaoBatch" class="org.springframework.aop.framework.ProxyFactoryBean" >
+		<property name="target">
+			<ref bean="ProjectDaoBatch"/>
+		</property>
+		<property name="proxyTargetClass" value="true"/>
+		<property name="interceptorNames">
+			<list>
+				<value>cacheAdvisor</value>
+				<value>preDAOLoggingAdvisor</value>
+				<value>postDAOLoggingAdvisor</value>
+			</list>
+		</property>
+	</bean -->
+	<!-- SCHEME 정보를 얻기위한 DB -->
+	<bean id="DbDao" class="project.jun.dao.HoDao" >
+		<property name="sqlSessionTemplate"><ref bean="dbSqlSessionReuseTemplate"/></property>
+		<property name="dataSource"><ref bean="dbDataSource"/></property>
+		<property name="cache">
+			<ref bean="ehcache"/>
+		</property>
+		<property name="cacheMap">
+			<map>
+				<entry key="CodeDAO.selectCodeListCombo"    value="CODE_CACHE,GROUP_CODE,CODE"/>
+				<entry key="DataBase.selectColumnList"      value="CODE_CACHE,TABLE_NAME,COLUMN_NAME"/>
+				<entry key="Sample.selectColumnList"        value="CODE_CACHE,TABLE_NAME,COLUMN_NAME"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="proxyDbDao" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="target">
+			<ref bean="DbDao"/>
+		</property>
+		<property name="proxyTargetClass" value="true"/>
+		<property name="interceptorNames">
+			<list>
+				<value>cacheAdvisor</value>
+				<value>preDAOLoggingAdvisor</value>
+				<value>postDAOLoggingAdvisor</value>
+			</list>
+		</property>
+	</bean>
+
+
+</beans>
+

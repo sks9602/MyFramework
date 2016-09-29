@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - Application context containing authentication, channel
+  - security and web URI beans.
+  -
+  - Only used by "filter" artifact.
+  -
+  -->
+
+<beans 	xmlns="http://www.springframework.org/schema/beans"
+		xmlns:security="http://www.springframework.org/schema/security"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xmlns:util="http://www.springframework.org/schema/util"
+		xmlns:aop="http://www.springframework.org/schema/aop"
+		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+							http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+							http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+							http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd">
+
+	<import resource="./ActionServlet-my.xml"/>
+
+
+	<!-- bean id="LoginServiceWithoutTx" class="com.base.system.delegate.LoginServiceDelegate"  parent="HoDelegate"></bean>
+
+	<bean id="LoginService" parent="transactionProxyTemplate">
+		<property name="target">
+			<ref local="LoginServiceWithoutTx"/>
+		</property>
+	</bean -->
+
+
+	<security:http access-denied-page="/system/login.do?p_action_flag=denied">
+		<!-- security:intercept-url pattern="/system/login.do" access="IS_AUTHENTICATED_ANONYMOUSLY" />
+		<security:intercept-url pattern="/**" access="ROLE_USER" / -->
+
+		<security:custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="filterSecurityInterceptor"/>
+
+		<security:form-login login-page="/system/login.do?p_action_flag=input"
+				authentication-failure-url="/system/login.do?p_action_flag=fail"
+				default-target-url="/system/dataBase.do?p_action_flag=db"
+				always-use-default-target="true" />
+		<security:logout logout-success-url="/system/login.do?p_action_flag=logouted" />
+		<security:anonymous />
+
+		<security:session-management invalid-session-url="/system/login.do?p_action_flag=timeout">
+			<security:concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/>
+		</security:session-management>
+
+		<security:remember-me />
+	</security:http>
+
+<!-- 	<security:global-method-security>
+		<security:protect-pointcut expression="execution(* com.base.system.delegate.DataBaseSvc.join())"  access="ROLE_ADMIN"/>
+	</security:global-method-security>
+ -->
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider  user-service-ref="loginAction" >
+			<security:password-encoder hash="sha-256" />
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+
+	<bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+		<property name="authenticationManager"  ref="authenticationManager" />
+		<property name="accessDecisionManager"  ref="accessDecisionManager" />
+		<property name="securityMetadataSource" ref="databaseSecurityMetadataSource" />
+	</bean>
+
+
+	<bean id="accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+		<property name="allowIfAllAbstainDecisions" value="false" />
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter">
+					<property name="rolePrefix" value="ROLE_" />
+				</bean>
+				<bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</list>
+		</property>
+    </bean>
+
+
+	<bean id="databaseSecurityMetadataSource" class="org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource">
+		<constructor-arg>
+			<util:map map-class="java.util.LinkedHashMap">
+				<entry>
+					<key>
+						<bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+							<constructor-arg value="/system/login.do"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="IS_AUTHENTICATED_ANONYMOUSLY"/>
+						</bean>
+					</list>
+				</entry>
+				<entry>
+					<key>
+						<bean class="org.springframework.security.web.util.AntPathRequestMatcher">
+							<constructor-arg value="/**"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_USER"/>
+						</bean>
+					</list>
+				</entry>
+			</util:map>
+		</constructor-arg>
+	</bean>
+
+
+    <bean id="delegatingMethodSecurityMetadataSource" class="org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource">
+        <constructor-arg>
+			<list>
+				<ref bean="methodSecurityMetadataSources"/>
+				<bean class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource" />
+			</list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="protectPointcutPostProcessor" class="org.springframework.security.config.method.ProtectPointcutPostProcessor">
+        <constructor-arg ref="methodSecurityMetadataSources" />
+        <property name="pointcutMap">
+	    	<map>
+				<entry>
+					<key>
+						<bean class="java.lang.String">
+							<constructor-arg value="execution(* com.base.system.delegate.DataBaseDelegate.join*())"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_ADMIN1"/>
+						</bean>
+					</list>
+				</entry>
+				<entry>
+					<key>
+						<bean class="java.lang.String">
+							<constructor-arg value="execution(* com.base.system.action.DataBaseAction.execute(..))"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_ADMIN1"/>
+						</bean>
+					</list>
+				</entry>
+			</map>
+        </property>
+    </bean>
+
+	<!-- aop:config proxy-target-class="true">
+	</aop:config-->
+
+    <!-- bean id="defaultAdvisorAutoProxyCreator" class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
+        <property name="beanName" value="DataBaseDelegate"/>
+    </bean -->
+
+	<!-- bean id="autoProxyCreator" class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+		<property name="interceptorNames">
+			<list>
+				<value>methodSecurityInterceptor</value>
+			</list>
+		</property>
+		<property name="beanNames">
+			<list>
+				<value>DataBaseDelegateWithoutTx</value>
+			</list>
+		</property>
+	</bean -->
+
+	<bean id="_accessDecisionManager" class="org.springframework.security.access.vote.AffirmativeBased">
+		<property name="allowIfAllAbstainDecisions" value="false" />
+		<property name="decisionVoters">
+			<list>
+				<bean class="org.springframework.security.access.vote.RoleVoter">
+					<property name="rolePrefix" value="ROLE_" />
+				</bean>
+				<bean class="org.springframework.security.access.vote.AuthenticatedVoter" />
+			</list>
+		</property>
+    </bean>
+
+
+	<bean id="methodSecurityMetadataSourceAdvisor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor">
+		<constructor-arg value="methodSecurityInterceptor" />
+		<constructor-arg ref="delegatingMethodSecurityMetadataSource" />
+		<constructor-arg value="delegatingMethodSecurityMetadataSource" />
+	</bean>
+
+	<bean id="methodSecurityInterceptor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+		<property name="validateConfigAttributes" value="true" />
+		<property name="authenticationManager" ref="authenticationManager"/>
+		<property name="accessDecisionManager" ref="_accessDecisionManager"/>
+		<property name="securityMetadataSource" ref="delegatingMethodSecurityMetadataSource"/>
+	</bean>
+
+    <bean id="methodSecurityMetadataSources" class="org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource">
+    	<constructor-arg>
+	    	<map>
+				<entry>
+					<key>
+						<bean class="java.lang.String">
+							<constructor-arg value="com.base.system.delegate.DataBaseDelegate.join*"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_ADMIN1"/>
+						</bean>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_ADMIN2"/>
+						</bean>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_ADMIN3"/>
+						</bean>
+					</list>
+				</entry>
+				<entry>
+					<key>
+						<bean class="java.lang.String">
+							<constructor-arg value="com.base.system.action.DataBaseAction.execute"/>
+						</bean>
+					</key>
+					<list>
+						<bean class="org.springframework.security.access.SecurityConfig">
+							<constructor-arg value="ROLE_ADMIN1"/>
+						</bean>
+					</list>
+				</entry>
+			</map>
+		</constructor-arg>
+    </bean>
+
+	<!-- bean id="antUrlPathMatcher"   class="org.springframework.security.web.util.AntUrlPathMatcher" />
+	<bean id="regexUrlPathMatcher" class="org.springframework.security.web.util.RegexRequestMatcher" / -->
+
+	<bean id="loggerListener" class="org.springframework.security.authentication.event.LoggerListener"/>
+
+</beans>

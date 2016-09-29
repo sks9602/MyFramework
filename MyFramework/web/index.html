@@ -1,0 +1,93 @@
+
+<html>
+	<script>
+		function fs_Go() {
+			var doc1 = document.myProject;
+			
+			doc1.action = '/s'+doc1.action.value+'?theme=classic&menu_id=A1020';
+			doc1.target = '_self';
+			doc1.submit();
+		}
+		
+		function fs_Go2() {
+			var doc1 = document.myProject2;
+			
+			doc1.action = '/s/system/navigation.do?theme=classic&menu_id=A1020'; ///crisp , classic, gray, access
+			doc1.target = '_self';
+			doc1.submit();
+		}
+
+	</script>
+	<body>
+		<h2>ExtJS My App Example </h2>
+		URL : http://127.0.0.1:8360/s/example/example.do?p_action_flag=all_in_one&theme=classic
+		<form name="myApp" method="post" action="http://127.0.0.1:8360/s/example/example.do?theme=classic">
+			<input type="submit" name="" value="ExtJS My App Example"/>
+			<input type="hidden" name="p_action_flag" value="all_in_one"/>
+		</form>
+
+		<form name="myAppCal" method="post" action="http://127.0.0.1:8360/s/static/js/calendar/index.html?theme=classic">
+			<input type="submit" name="" value="ExtJS My App - Calendar"/>
+		</form>
+
+		
+
+		<br/>
+		
+		<h2> ExtJS My Project </h2>
+		URL : http://127.0.0.1:8360/s/system/menu.do?p_action_flag=all_in_one&theme=classic
+		<form name="myProject" method="post" action="">
+			<select name="action">
+				<option value="/system/menu.do">메뉴관리</option>
+				<option value="/system/auth.do">권한관리</option>
+			</select>
+			<input type="hidden" name="p_action_flag" value="all_in_one"/>
+			<input type="button" name="" value="ExtJS My Project" onclick="fs_Go();"/>
+		</form>
+
+		<h2> ExtJS My Project2 </h2>
+		URL : http://127.0.0.1:8360/s/system/menu.do?p_action_flag=all_in_one&theme=classic
+		<form name="myProject2" method="post" action="">
+			<select name="action">
+				<option value="/system/menu.do">메뉴관리</option>
+				<option value="/system/auth.do">권한관리</option>
+				<option value="/example/example.do">예제소스</option>
+			</select>
+			<input type="hidden" name="p_action_flag" value="all_in_one"/>
+			<input type="button" name="" value="ExtJS My Project" onclick="fs_Go2();"/>
+		</form>	
+		<h2> DB Query Builder </h2>
+		URL    : http://127.0.0.1:8360/s/system/dataBase.do?p_action_flag=db
+		<form name="myDB" method="post" action="http://127.0.0.1:8360/s/system/dataBase.do">
+			<input type="submit" name="" value="DB Query Builder"/>
+			<input type="hidden" name="p_action_flag" value="db"/>
+		</form>	
+
+		<br/>
+	
+		<h2> InfraRED </h2>
+		Server.xml : &lt;Context docBase="f:/project/sesedu-tomcat60/webapps/infrared-web-2.6-rc1" reloadable="true" path="/mon" /&gt;
+		<br/>
+		war location : f:/project/sesedu-tomcat60/webapps/infrared-web-2.6-rc1.war
+		<br/>
+		URL : http://127.0.0.1:8360/mon/infrared.jsp		
+		<form name="myDB" method="post" action="http://127.0.0.1:8360/mon/infrared.jsp">
+			<input type="submit" name="" value="InfraRED"/>
+		</form>			
+
+
+		<h2> Cache List조회 </h2>
+		URL : http://127.0.0.1:8360/s/jsp/common/cache/Cache.r_list.jsp	
+		<form name="myDB" method="post" action="http://127.0.0.1:8360/s/jsp/common/cache/Cache.r_list.jsp">
+			<input type="submit" name="" value="Cache List조회"/>
+		</form>			
+	</body>
+
+<br/>
+
+FileDownload Sample : http://127.0.0.1:8360/s/example/file.do?p_action_flag=r_download_file
+<br/>
+
+
+
+</html>

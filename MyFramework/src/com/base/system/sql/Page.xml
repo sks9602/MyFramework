@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Thu Sep 01 17:09:27 KST 2011-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Page">
+<!-- 
+<![CDATA[
+
+ GRID의 fields에서 사용 하는 SQL-ID 정보
+CREATE TABLE HO_T_SYS_GRID_SQL (
+	SQL_ID		VARCHAR2(50) NOT NULL,
+	COLUMN_NAME		VARCHAR2(30) NOT NULL ,
+	COLUMN_IDX		NUMBER(3,1) NOT NULL,
+	DATA_TYPE		VARCHAR2(10),
+	constraint "HO_T_SYS_GRID_SQL_PK"  primary key(SQL_ID,COLUMN_NAME,COLUMN_IDX)
+)
+
+
+]]>
+-->
+
+<!-- Grid의 fields에서 사용 하는 정보 조회  -->
+<select id="selectGridFieldsSql" parameterType="queryParameterMap" resultType="queryResultListMap">
+	SELECT SQL_ID, COLUMN_NAME, DATA_TYPE
+	  FROM HO_T_SYS_GRID_SQL
+	 WHERE SQL_ID = #{SQL_ID}
+</select>
+
+
+<!--  Grid의 fields에서 사용 하는  메타데이터를 저장  -->
+<insert id="insertGridFieldsSql" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_GRID_SQL( SQL_ID, COLUMN_NAME, COLUMN_IDX, DATA_TYPE )
+VALUES ( #{SQL_ID}, #{COLUMN_NAME}, #{COLUMN_IDX}, #{DATA_TYPE})
+</insert>
+
+
+
+<!-- Grid의 fields에서 사용 하는  메타데이터 정보 삭제  -->
+<update id="deleteGridFieldsSql" parameterType="queryParameterMap">
+DELETE 
+  FROM HO_T_SYS_GRID_SQL
+ WHERE SQL_ID = #{SQL_ID}
+</update>
+
+</mapper>

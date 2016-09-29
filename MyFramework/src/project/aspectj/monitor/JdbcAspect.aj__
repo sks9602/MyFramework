@@ -1,0 +1,42 @@
+package project.aspectj.monitor;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import net.sf.infrared.aspects.jdbc.p6spy.InfraREDP6Connection;
+import net.sf.infrared.aspects.jdbc.p6spy.InfraREDP6Factory;
+
+import org.apache.log4j.Logger;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+
+@Aspect
+public class JdbcAspect {
+
+	protected  Logger          logger     = Logger.getLogger(JdbcAspect.class);
+
+	private InfraREDP6Factory factory;
+
+	public JdbcAspect() {
+		this.factory = new InfraREDP6Factory();
+	}
+
+	@Pointcut(value = " execution( public java.sql.Connection+ java.sql.Driver+.connect(..)) || execution(public java.sql.Connection+ javax.sql.DataSource+.getConnection(..))")
+	public void getConnection() {
+	}
+
+	@Around("getConnection()")
+	public Object around(ProceedingJoinPoint thisJoinPoint) throws Throwable {
+		Connection con = (Connection) thisJoinPoint.proceed();
+		
+		if (!(con instanceof InfraREDP6Connection)) {
+			try {
+				con = this.factory.getConnection(con);
+			} catch (SQLException sqlex) {
+			}
+		}
+		return con;
+	}
+}

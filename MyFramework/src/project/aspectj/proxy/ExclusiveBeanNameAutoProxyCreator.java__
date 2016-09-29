@@ -1,0 +1,71 @@
+package project.aspectj.proxy;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.aop.TargetSource;
+import org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator;
+import org.springframework.beans.factory.InitializingBean;
+
+public class ExclusiveBeanNameAutoProxyCreator extends BeanNameAutoProxyCreator implements InitializingBean {
+
+	private final List noProxyBeanNames;
+	private final List exclusiveBeanNames;
+	private boolean isBeanNames = false;
+
+	public ExclusiveBeanNameAutoProxyCreator() {
+		this.exclusiveBeanNames = new ArrayList();
+		this.noProxyBeanNames = new ArrayList();
+	}
+
+	public void setBeanNames(String[] beanNames) {
+		if (beanNames.length > 0) {
+			this.isBeanNames = true;
+		}
+		super.setBeanNames(beanNames);
+	}
+
+	public Object[] getAdvicesAndAdvisorsForBean(Class beanClass, String beanName, TargetSource targetSource) {
+		Object[] rtnObj = DO_NOT_PROXY;
+		if ((beanName != null) && (this.noProxyBeanNames.contains(beanName))) {
+			return DO_NOT_PROXY;
+		}
+		if ((this.exclusiveBeanNames != null) && (this.exclusiveBeanNames.contains(beanName))) {
+			return DO_NOT_PROXY;
+		}
+		if (this.exclusiveBeanNames != null) {
+			Iterator itr = this.exclusiveBeanNames.iterator();
+			while (itr.hasNext()) {
+				String mappedName = (String) itr.next();
+				if (isMatch(beanName, mappedName))
+					return DO_NOT_PROXY;
+			}
+		}
+		try {
+			rtnObj = super.getAdvicesAndAdvisorsForBean(beanClass, beanName, targetSource);
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			return DO_NOT_PROXY;
+		}
+		return rtnObj;
+	}
+
+	public void setExclusiveBeanNames(String[] beanNames) {
+		for (int i = 0; i < beanNames.length; ++i) {
+			this.exclusiveBeanNames.add(beanNames[i]);
+		}
+	}
+
+	public void setNoProxyBeanNames(String[] beanNames) {
+		for (int i = 0; i < beanNames.length; ++i) {
+			this.noProxyBeanNames.add(beanNames[i]);
+		}
+	}
+
+	public void afterPropertiesSet() throws Exception {
+		if (!(this.isBeanNames)) {
+			super.setBeanNames(new String[] { "*" });
+		}
+	}
+}

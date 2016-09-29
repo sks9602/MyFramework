@@ -1,0 +1,115 @@
+/**
+참고 사이트 : http://codepen.io/nemophrost/pen/rpucd
+---- [HTML] ----
+<div class="progress">
+  <div class="progress-bar" style="width: 100%;"></div>
+</div>
+---- [HTML] ----
+
+---- [JS] ----
+$('.progress').click(function() {
+  $(this).find('.progress-bar').css('width', Math.floor(10 + Math.random() * 100) + '%');
+});
+---- [JS] ----
+
+*/
+
+.box-shadow(@shadow) {
+  -webkit-box-shadow: @shadow;
+     -moz-box-shadow: @shadow;
+          box-shadow: @shadow;
+}
+
+.transition(@transition) {
+  -webkit-transition: @transition;
+     -moz-transition: @transition;
+       -o-transition: @transition;
+          transition: @transition;
+}
+
+.gradient-vertical(@start-color; @end-color; @start-percent: 0%; @end-percent: 100%) {
+  background-image: -webkit-linear-gradient(top, @start-color @start-percent, @end-color @end-percent);
+  background-image: linear-gradient(to bottom, @start-color @start-percent, @end-color @end-percent);
+}
+.gradient-striped(@color1; @color2; @angle: 45deg) {
+  background-image: -webkit-linear-gradient(
+    @angle,
+    @color1 30%,
+    @color2 30%,
+    @color2 33%,
+    transparent 33%,
+    transparent 46%,
+    @color2 46%,
+    @color2 50%,
+    @color1 50%,
+    @color1 80%,
+    @color2 80%,
+    @color2 83%,
+    transparent 83%,
+    transparent 97%,
+    @color2 97%,
+    @color2
+  );
+  background-image: linear-gradient(
+    @angle,
+    @color1 30%,
+    @color2 30%,
+    @color2 34%,
+    transparent 34%,
+    transparent 46%,
+    @color2 46%,
+    @color2 50%,
+    @color1 50%,
+    @color1 80%,
+    @color2 80%,
+    @color2 84%,
+    transparent 84%,
+    transparent 96%,
+    @color2 96%,
+    @color2
+  );
+}
+
+/* ========================================================
+  Progress Bar
+======================================================== */
+
+// ANIMATIONS
+@-webkit-keyframes progress-bar-animate {
+  from  { background-position: 40px 0; }
+  to    { background-position: 0 0; }
+}
+
+@keyframes progress-bar-animate {
+  from  { background-position: 40px 0; }
+  to    { background-position: 0 0; }
+}
+
+
+// outer container
+.progress {
+  overflow: hidden;
+  height: 20px;
+  border-radius: 10px;
+  .gradient-vertical(#ccc, #ddd);
+  .box-shadow(inset 0 1px 2px rgba(0,0,0,.1));
+
+  // inner progress bar
+  &-bar {
+    width: 0%;
+    height: 100%;
+    float: left;
+    box-sizing: border-box;
+    background-color: #79b;
+    background-size: 40px 40px;
+    border-radius: 10px 0 0 10px;
+    .gradient-striped(rgba(255,255,255,0.2); rgba(0,0,0,0.1));
+    .box-shadow(inset 0 -1px 0 rgba(0,0,0,.1));
+    .transition(width 200ms ease);
+
+    -webkit-animation: progress-bar-animate 1s linear infinite;
+            animation: progress-bar-animate 1s linear infinite;
+  }
+}
+
+

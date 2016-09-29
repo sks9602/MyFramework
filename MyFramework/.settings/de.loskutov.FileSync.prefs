@@ -1,0 +1,7 @@
+WARNING=DO NOT MODIFY THIS FILE IF YOU DON'T UNDERSTAND
+defaultDestination=D\:/project/sesedu-tomcat60/temp/0-s
+defaultVariables=
+eclipse.preferences.version=1
+includeTeamPrivateFiles=false
+map|0=web|,|static/**/*.*;jsp/**/*.*;index.html;WEB-INF/**/*.tag|**/backup/**/*.*|,
+useCurrentDateForDestinationFiles=false

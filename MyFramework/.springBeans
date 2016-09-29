@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[2.9.2.201205070117-RELEASE]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[false]]></enableImports>
+	<configs>
+		<config>src/project/config/ActionServlet-jdbc.xml</config>
+		<config>src/project/config/ActionServlet-my.xml</config>
+		<config>src/project/config/ActionServlet.xml</config>
+		<config>src/project/config/applicationContext-aop.xml</config>
+		<config>src/project/config/applicationContext-cache.xml</config>
+		<config>src/project/config/applicationContext-dao.xml</config>
+		<config>src/project/config/applicationContext-db.xml</config>
+		<config>src/project/config/applicationContext-security.xml</config>
+		<config>src/project/config/applicationContext-tx.xml</config>
+		<config>src/project/config/applicationContext.xml</config>
+		<config>src/project/config/applicationContextDelegate-jdbc.xml</config>
+		<config>src/project/config/applicationContextDelegate-my.xml</config>
+		<config>src/project/config/applicationContextDelegate-sample.xml</config>
+		<config>src/project/config/applicationContextDelegate.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

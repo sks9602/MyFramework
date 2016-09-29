@@ -1,0 +1,13 @@
+#The sample infrared-web.properties
+
+
+# Collector configuration
+
+persist-interval=300000
+
+
+
+#web configuration
+
+web.color-threshold=25
+web.num-of-sql-queries=20

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans 	default-lazy-init="true" xmlns="http://www.springframework.org/schema/beans"
+		xmlns:security="http://www.springframework.org/schema/security"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<import resource="./applicationContext-dao.xml"/>
+	<import resource="./applicationContextDelegate.xml"/>
+
+	<bean id="LoginDelegateWithoutTx" class="com.base.system.delegate.LoginDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="LoginDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="LoginDelegateWithoutTx"/>
+		</property>
+	</bean>
+
+	<bean id="LayoutDelegateWithoutTx" class="com.base.system.delegate.LayoutDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="LayoutDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="LayoutDelegateWithoutTx"/>
+		</property>
+	</bean>
+
+	<bean id="SampleDelegateWithoutTx" class="com.base.system.delegate.SampleDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="SampleDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="SampleDelegateWithoutTx"/>
+		</property>
+	</bean>
+
+
+	<bean id="ExampleDelegateWithoutTx" class="com.base.example.delegate.ExampleDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="ExampleDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="ExampleDelegateWithoutTx"/>
+		</property>
+	</bean>
+	
+	
+	<bean id="FileDelegateWithoutTx" class="com.base.system.delegate.FileDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="FileDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="FileDelegateWithoutTx"/>
+		</property>
+	</bean>
+
+	<!--  [시스템 : 개발 관리] -->
+	<bean id="DevelopeDelegateWithoutTx" class="com.base.system.delegate.DevelopeDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="DevelopeDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="DevelopeDelegateWithoutTx"/>
+		</property>
+	</bean>
+
+	<!--  [시스템 : 메뉴 Naviagetion] -->
+	<bean id="NavigationDelegateWithoutTx" class="com.base.system.delegate.NavigationDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="NavigationDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="NavigationDelegateWithoutTx"/>
+		</property>
+	</bean>
+	
+	<!--  [시스템 : 공통기능 > JSP페이지 관리] -->
+	<bean id="PageDelegateWithoutTx" class="com.base.system.delegate.PageDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="PageDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="PageDelegateWithoutTx"/>
+		</property>
+	</bean>
+	
+	<!--  [시스템 : 관리자 메뉴 > 시스템 관리 > 메뉴 관리] -->
+	<bean id="MenuDelegateWithoutTx" class="com.base.system.delegate.MenuDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="MenuDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="MenuDelegateWithoutTx"/>
+		</property>
+	</bean>
+	
+	<!--  [시스템 : 관리자 메뉴 > 시스템 관리 > 권한 관리] -->
+	<bean id="AuthDelegateWithoutTx" class="com.base.system.delegate.AuthDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="AuthDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="AuthDelegateWithoutTx"/>
+		</property>
+	</bean>
+	
+		<!--  [시스템 : 관리자 메뉴 > 시스템 관리 > 코드 관리] -->
+	<bean id="CodeDelegateWithoutTx" class="com.base.system.delegate.CodeDelegate" parent="HoDelegate" scope="request"></bean>
+	<bean id="CodeDelegate" parent="projectTransactionProxyTemplate">
+		<property name="target">
+			<ref local="CodeDelegateWithoutTx"/>
+		</property>
+	</bean>
+</beans>

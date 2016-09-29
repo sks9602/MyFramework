@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8"?><!--Converted at: Thu Sep 01 17:09:25 KST 2011-->
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="DataBase">
+
+<!--  DataBase사용자 -->
+<select id="selectDataBaseUser" parameterType="queryParameterMap" resultType="queryResultListMap">
+
+		<if test="CODE_GBN != ''">
+SELECT '' CODE , '-전체-' CODE_NAME
+  FROM HO_T_SYS_DUAL C
+UNION ALL
+		</if>
+
+SELECT 'GLMS' CODE , 'GLMS' CODE_NAME
+  FROM HO_T_SYS_DUAL C
+UNION ALL
+SELECT 'GLMS2' CODE , 'GLMS2' CODE_NAME
+  FROM HO_T_SYS_DUAL C
+/*
+SELECT DISTINCT  OWNER CODE,  OWNER NAME
+  FROM ALL_TAB_COMMENTS
+ WHERE OWNER NOT IN ('XDB','SYSTEM','SYS','OUTLN', 'DBSNMP')
+ */
+</select>
+
+<update id="deleteTableInfo" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_TABLE_INFO
+ WHERE OWNER IN #{OWNER}
+   <foreach collection="TABLE_NAME_ES" index="index" item="TABLE_NAME_ES" separator="," close=" )" open="AND  TABLE_NAME IN (">
+		UPPER(#{TABLE_NAME_ES})
+	</foreach>
+</update>
+
+<update id="insertTableInfo" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_TABLE_INFO ( OWNER          ,
+                           TABLE_NAME     ,
+                           TABLE_ALIAS    ,
+                           TABLE_TYPE     ,
+                           TABLE_COMMENTS
+   )
+SELECT OWNER, TABLE_NAME, REPLACE(TRANSLATE(INITCAP(TABLE_NAME), TABLE_NAME||'abcdefghijklmnopqrstuvwxyz', TABLE_NAME),'_','') TABLE_ALIAS, TABLE_TYPE, COMMENTS
+  FROM ALL_TAB_COMMENTS
+ WHERE OWNER IN #{OWNER}
+   <foreach collection="TABLE_NAME_ES" index="index" item="TABLE_NAME_ES"  separator="," close=" )" open="AND  TABLE_NAME IN (">
+		UPPER(#{TABLE_NAME_ES})
+	</foreach>
+</update>
+
+<update id="deleteColumnInfo" parameterType="queryParameterMap">
+DELETE FROM HO_T_SYS_COLUMN_INFO
+ WHERE OWNER IN #{OWNER}
+   <foreach collection="TABLE_NAME_ES" index="index" item="TABLE_NAME_ES" separator="," close=" )" open="AND  TABLE_NAME IN (">
+		UPPER(#{TABLE_NAME_ES})
+	</foreach>
+</update>
+
+<update id="insertColumnInfo" parameterType="queryParameterMap">
+INSERT INTO HO_T_SYS_COLUMN_INFO ( OWNER        ,
+                            TABLE_NAME   ,
+                            COLUMN_NAME  ,
+                            COLUMN_ID ,
+                            COLUMN_TITLE ,
+                            DATA_TYPE    ,
+                            DATA_LENGTH  ,
+                            PK_IDX       ,
+                            NOTNULL_YN   ,
+                            CODE         ,
+                            CODE_COLUMN  ,
+                            DATA_DEFAULT ,
+                            MIN_VALUE    ,
+                            MAX_VALUE    ,
+                            REGI_DT      ,
+                            REGI_NO      )
+SELECT OWNER, TABLE_NAME,
+       COLUMN_NAME, COLUMN_ID, COMMENTS,
+       DATA_TYPE, DATA_LENGTH,
+       IDX_POSITION, DATA_NULL, DECODE(SIGN(INSTR(COMMENTS, 'CODE:')), 1, SUBSTR( COMMENTS, INSTR(COMMENTS, 'CODE:')+5, INSTR(COMMENTS, ')') - INSTR(COMMENTS, 'CODE:') -5 ) ) CODE,
+       DECODE(SIGN(INSTR(COMMENTS, 'CODE:')), 1, SUBSTR( SUBSTR( COMMENTS, INSTR(COMMENTS, 'CODE:')+5), INSTR(SUBSTR( COMMENTS, INSTR(COMMENTS, 'CODE:')+5), ')')+2) ) CODE_COLUMN,
+       -- TODO
+       null DATA_DEFAULT, null MIN_VALUE, null MAX_VALUE,
+       SYSDATE, NULL
+  FROM (
+SELECT A.OWNER, B.TABLE_NAME, (SELECT COMMENTS FROM ALL_TAB_COMMENTS WHERE OWNER = A.OWNER AND TABLE_NAME = B.TABLE_NAME ) TABLE_COMMENTS,
+       B.COLUMN_ID, A.COLUMN_NAME, A.COMMENTS, B.DATA_TYPE,  REPLACE(TRANSLATE(INITCAP(B.TABLE_NAME), B.TABLE_NAME||'abcdefghijklmnopqrstuvwxyz',B.TABLE_NAME),'_','') TABLE_AS,
+       ( SELECT MAX(LENGTH(COLUMN_NAME)) FROM ALL_COL_COMMENTS WHERE OWNER       = A.OWNER
+            AND TABLE_NAME  = A.TABLE_NAME  ) LENGTH,
+       DECODE(B.DATA_TYPE,'DATE','', NVL(DATA_PRECISION,'')||
+       		NVL(CHAR_COL_DECL_LENGTH,'') ) ||
+       		DECODE(NVL(DATA_SCALE,'0'),'0','',','
+       		||DATA_SCALE) DATA_LENGTH,
+		DECODE(B.NULLABLE,'N','Y', '') DATA_NULL,
+		( SELECT Y.POSITION
+          FROM ALL_CONSTRAINTS X, ALL_CONS_COLUMNS Y
+         WHERE X.OWNER=B.OWNER
+			AND X.TABLE_NAME=B.TABLE_NAME
+			AND X.CONSTRAINT_TYPE = 'P'
+			AND X.CONSTRAINT_NAME = Y.CONSTRAINT_NAME
+			AND Y.OWNER = B.OWNER
+			AND Y.TABLE_NAME = B.TABLE_NAME
+			AND Y.COLUMN_NAME = B.COLUMN_NAME ) IDX_POSITION, B.DATA_DEFAULT
+ FROM  ALL_COL_COMMENTS A,    ALL_TAB_COLUMNS B
+ WHERE A.OWNER       = B.OWNER
+   AND A.TABLE_NAME  = B.TABLE_NAME
+   AND A.OWNER       = #{OWNER}
+   <foreach collection="TABLE_NAME_ES" index="index" item="TABLE_NAME_ES"  separator="," close=" )" open="AND  B.TABLE_NAME IN (">
+		UPPER(#{TABLE_NAME_ES})
+	</foreach>
+   AND A.COLUMN_NAME =  B.COLUMN_NAME
+ ORDER BY B.TABLE_NAME, B.COLUMN_ID ) AA
+</update>
+
+
+<select id="selectTableListCnt" parameterType="queryParameterMap" resultType="queryResultListMap">
+
+SELECT COUNT(*) CNT
+ FROM (
+SELECT OWNER, TABLE_NAME, TABLE_TYPE, TABLE_COMMENTS,
+       (SELECT COUNT(*) FROM HO_T_SYS_COLUMN_INFO WHERE  OWNER = STI.OWNER AND TABLE_NAME = STI.TABLE_NAME ) AS COLUMN_CNT,
+       (SELECT COUNT(*)
+          FROM HO_T_SYS_COLUMN_INFO
+         WHERE OWNER      = STI.OWNER
+           AND TABLE_NAME = STI.TABLE_NAME
+           AND PK_IDX IS NOT NULL) AS PK_CNT
+  FROM HO_T_SYS_TABLE_INFO    STI
+ WHERE 1=1
+ <if test="S_OWNER != null">
+   AND OWNER  = #{S_OWNER}
+ </if>
+   AND TABLE_NAME NOT LIKE 'BIN%'
+   AND OWNER IN ('GLMS','GLMS2')
+
+ <if test="S_TABLE_NAME_ES != null">
+	AND <foreach collection="S_TABLE_NAME_ES" item="item" separator="OR" close=" )" open=" (">
+		REPLACE(UPPER(TABLE_NAME),' ','') LIKE '%'|| REPLACE(UPPER(#{S_TABLE_NAME_ES}),' ','')||'%'
+	</foreach>
+ </if> <if test="S_COMMENT_NAME_ES != null">
+	AND <foreach collection="S_COMMENT_NAME_ES" item="item" separator="OR" close=" )" open=" (">
+		REPLACE(UPPER(COMMENTS),' ','') LIKE '%'|| REPLACE(UPPER(#{S_COMMENT_NAME_ES}),' ','')||'%'
+	</foreach>
+ </if>
+
+)
+</select>
+
+<select id="selectTableList" parameterType="queryParameterMap" resultType="queryResultListMap">
+
+SELECT STI.OWNER
+      ,T.TNAME
+      ,STI.TABLE_NAME
+      ,STI.TABLE_ALIAS
+      ,STI.TABLE_TYPE
+      ,STI.TABLE_COMMENTS
+      ,NVL2(STI.TABLE_NAME, NVL(SCI.CNT,0), NULL) AS CNT
+  FROM TAB T, HO_T_SYS_TABLE_INFO STI, (SELECT TABLE_NAME, COUNT(*) CNT FROM HO_T_SYS_COLUMN_INFO GROUP BY OWNER, TABLE_NAME) SCI
+ WHERE 1 = 1
+   AND T.TNAME = STI.TABLE_NAME (+)
+   AND T.TNAME = SCI.TABLE_NAME (+)
+   AND T.TABTYPE IN ( 'TABLE', 'VIEW' )
+ <if test="S_TABLE_NM != null and HO_T_SYS_TABLE_NM != '' ">
+	AND <foreach collection="S_TABLE_NM_ES" index="index" item="S_TABLE_NM_ES" separator="OR"  open=" (" close=" )">
+		REPLACE(UPPER(TNAME),' ','') LIKE '%'|| REPLACE(UPPER(#{S_TABLE_NM_ES}),' ','')||'%'
+	</foreach>
+ </if>
+	<if test="SORT != ''"> ORDER BY ${SORT}  ${DIR}	</if>
+	<if test="SORT == ''"> ORDER BY OWNER, TNAME 	</if>
+</select>
+
+
+<select id="selectColumnList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT STI.TABLE_NAME
+      ,'/* '||STI.TABLE_COMMENTS||' */'        TABLE_COMMENTS
+      ,STI.TABLE_ALIAS
+      ,SCI.COLUMN_ID
+      ,SCI.COLUMN_NAME                        COLUMN_NAME
+      ,STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME  T_COLUMN_NAME
+      ,'/* '||SCI.COLUMN_TITLE||' */'  COLUMN_COMMENTS
+      ,SCI.COLUMN_TITLE AS COLUMN_COMMENTS_O
+      ,MAX(LENGTH(STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME) )
+           OVER( PARTITION BY STI.TABLE_NAME ORDER BY SCI.COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) COLUMN_MAX
+      ,MAX(LENGTH(SCI.COLUMN_TITLE) )
+           OVER( PARTITION BY STI.TABLE_NAME ORDER BY SCI.COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) COMMENTS_MAX
+      ,STI.TABLE_TYPE
+      ,SCI.DATA_LENGTH
+      ,SCI.MIN_VALUE
+      ,SCI.MAX_VALUE
+      ,SCI.DATA_TYPE
+      ,SCI.PK_IDX
+      ,SCI.NOTNULL_YN
+      ,SCI.CODE
+      ,SCI.CODE_COLUMN
+      ,SCI.DATA_DEFAULT
+      ,SCI.SUB_QUERY
+	  ,REPLACE(INITCAP(STI.TABLE_NAME),'_', '') CAP_TABLE_NAME
+  FROM HO_T_SYS_TABLE_INFO STI, HO_T_SYS_COLUMN_INFO SCI
+ WHERE STI.OWNER = SCI.OWNER
+   AND STI.TABLE_NAME = SCI.TABLE_NAME
+   AND SCI.OWNER       = #{OWNER}
+   AND SCI.TABLE_NAME  IN  UPPER(#{TABLE_NAME})
+ ORDER BY STI.TABLE_NAME, SCI.PK_IDX, SCI.COLUMN_ID
+</select>
+
+<select id="selectConstraintsList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT Y.COLUMN_NAME, X.CONSTRAINT_TYPE, X.SEARCH_CONDITION
+  FROM ALL_CONSTRAINTS X, ALL_CONS_COLUMNS Y
+ WHERE X.OWNER           = Y.OWNER
+   AND X.TABLE_NAME      = Y.TABLE_NAME
+   AND X.CONSTRAINT_NAME = Y.CONSTRAINT_NAME
+   AND Y.OWNER           = #{OWNER}
+   AND Y.TABLE_NAME      = #{TABLE_NAME}
+</select>
+
+
+<select id="selectJoinTableAlias" parameterType="queryParameterMap" resultType="queryResultListMap">
+
+	SELECT OWNER, TABLE_NAME, REPLACE(TRANSLATE(INITCAP(B.TABLE_NAME), B.TABLE_NAME||'abcdefghijklmnopqrstuvwxyz',B.TABLE_NAME),'_','') TABLE_AS, COLUMN_NAME,
+	       MAX(LENGTH(TABLE_NAME)) TABLE_NAME_LENGTH , REPLACE(INITCAP(B.TABLE_NAME),'_','') TABLE_AS_CAMEL
+	  FROM HO_T_SYS_COLUMN_INFO B
+	 WHERE 1=1
+	   AND B.OWNER IN (''
+	 <foreach collection="OWNER_ES" index="index"  item="OWNER_ES" separator=", " open=" ,">
+		       #{OWNER_ES}
+	</foreach> )
+	   AND B.TABLE_NAME IN  (''
+	 <foreach collection="TABLE_NAME_ES" index="index"  item="TABLE_NAME_ES" separator=", " open=" ,">
+		       #{TABLE_NAME_ES}
+	</foreach> )
+     GROUP BY OWNER, TABLE_NAME, COLUMN_NAME, LENGTH(TABLE_NAME)
+
+</select>
+
+
+<select id="selectJoinTable" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT TABLE_NAME, TABLE_COMMENTS, TABLE_ALIAS
+     ,MAX(LENGTH(TABLE_NAME) )
+           OVER(ORDER BY TABLE_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) TABLE_MAX
+     ,MAX(LENGTH(TABLE_ALIAS) )
+           OVER(ORDER BY TABLE_ALIAS ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) ALIAS_MAX
+   FROM (
+SELECT STI.TABLE_NAME
+      ,'/* '||STI.TABLE_COMMENTS||' */'        TABLE_COMMENTS
+      ,STI.TABLE_ALIAS
+  FROM HO_T_SYS_TABLE_INFO STI
+ WHERE STI.TABLE_NAME IN ( '' ,
+	 <foreach collection="SELECT_TABLE" index="index" item="SELECT_TABLE"  separator=", " >
+		UPPER(#{SELECT_TABLE})
+	</foreach>
+	)
+ )
+ ORDER BY TABLE_NAME
+</select>
+
+
+<select id="selectJoinTableMaxColumnLength" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT T_LENGTH, T_AS_LENGTH, MAX_COL_NAME_LENGTH
+  FROM (
+	SELECT MAX(T_AS_LENGTH) T_AS_LENGTH, MAX(T_LENGTH) T_LENGTH
+      FROM ( <foreach collection="TABLE_INFO" index="index" item="TABLE_INFO" separator=" UNION ALL ">
+	        	SELECT LENGTH(#{TABLE_AS_TABLE}) T_AS_LENGTH, LENGTH(#{TABLE_INFO}) T_LENGTH  FROM HO_T_SYS_DUAL
+	          </foreach>)
+	 ) T_L, (
+	SELECT MAX(LENGTH(COLUMN_NAME))  MAX_COL_NAME_LENGTH
+	  FROM ALL_TAB_COLUMNS B
+	 WHERE 1=1
+	   AND B.OWNER IN (''
+	 <foreach collection="OWNER_INFO" index="index" item="OWNER_INFO" separator=", " open=" ,">
+		       #{OWNER_INFO}
+	</foreach> )
+	   AND B.TABLE_NAME IN  (''
+	 <foreach collection="TABLE_INFO" index="index" item="TABLE_INFO" separator=", " open=" ,">
+		       #{TABLE_INFO}
+	</foreach> ) )
+</select>
+
+<select id="selectColumnListForJoin" parameterType="queryParameterMap" resultType="queryResultListMap">
+
+	 <foreach collection="LEFT_TABLE" index="index" item="LEFT_TABLE" separator=" UNION ALL ">
+SELECT SCI.COLUMN_ID
+      ,SCI.COLUMN_NAME                        COLUMN_NAME
+      ,STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME  T_COLUMN_NAME
+      ,'/* '||SCI.COLUMN_TITLE||' */'  COLUMN_COMMENTS
+      ,SCI.PK_IDX
+      ,(SELECT (SELECT TABLE_ALIAS FROM HO_T_SYS_TABLE_INFO WHERE OWNER = A.OWNER AND TABLE_NAME = A.TABLE_NAME )||'.'||A.COLUMN_NAME
+          FROM HO_T_SYS_COLUMN_INFO A
+         WHERE OWNER = SCI.OWNER AND TABLE_NAME = #{RIGHT_TABLE} AND COLUMN_NAME = SCI.COLUMN_NAME ) J_COLUMN_NAME
+ FROM  HO_T_SYS_TABLE_INFO STI, HO_T_SYS_COLUMN_INFO SCI
+ WHERE STI.OWNER = SCI.OWNER
+   AND STI.TABLE_NAME = SCI.TABLE_NAME
+   AND SCI.OWNER       = #{OWNER}
+   AND SCI.TABLE_NAME  = #{LEFT_TABLE}
+   --AND SCI.COLUMN_NAME NOT IN ('REGI_DT', 'REGI_NO','MODI_DT','MODI_NO' ) )
+	</foreach>
+ ORDER BY TABLE_NAME, PK_IDX, COLUMN_ID
+</select>
+
+<select id="selectSelectClauseColumnList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT STI.TABLE_NAME
+      ,'/* '||STI.TABLE_COMMENTS||' */'        TABLE_COMMENTS
+      ,STI.TABLE_ALIAS
+      ,SCI.COLUMN_ID
+      ,SCI.COLUMN_NAME                        COLUMN_NAME
+      ,STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME  T_COLUMN_NAME
+      ,'/* '||SCI.COLUMN_TITLE||' */'  COLUMN_COMMENTS
+      ,SCI.COLUMN_TITLE  COLUMN_COMMENTS_O
+      ,SCI.DATA_LENGTH
+      ,SCI.DATA_TYPE
+      ,SCI.PK_IDX
+      ,SCI.CODE
+      ,SCI.CODE_COLUMN
+      ,SCI.SUB_QUERY
+      ,MAX(LENGTH(STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME) )
+           OVER(ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) A_COLUMN_MAX
+      ,MAX(LENGTH(SCI.COLUMN_TITLE) )
+           OVER( ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) COMMENTS_MAX
+     ,ROW_NUMBER() OVER (PARTITION BY STI.TABLE_NAME ORDER BY STI.TABLE_NAME, SCI.COLUMN_ID, SCI.PK_IDX NULLS LAST) AS COL_IDX
+  FROM HO_T_SYS_TABLE_INFO STI, HO_T_SYS_COLUMN_INFO SCI
+ WHERE STI.OWNER = SCI.OWNER
+   AND STI.TABLE_NAME = SCI.TABLE_NAME
+   AND SCI.TABLE_NAME IN ( '' ,
+	 <foreach collection="SELECT_TABLE" index="index" item="SELECT_TABLE"  separator=", " >
+		UPPER(#{SELECT_TABLE})
+	</foreach>
+	)
+ ORDER BY STI.TABLE_NAME, SCI.COLUMN_ID
+</select>
+<select id="selectJoinColumnList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT TABLE_NAME, TABLE_COMMENTS, TABLE_ALIAS, COLUMN_ID, COLUMN_NAME, T_COLUMN_NAME, COLUMN_COMMENTS, PK_IDX, CODE, CODE_COLUMN, J_COLUMN_NAME
+     ,LEFT_TABLE_OUTER ,RIGHT_TABLE_OUTER
+     ,MAX(LENGTH(T_COLUMN_NAME) )
+           OVER(PARTITION BY NVL2(PK_IDX, 1, 0) ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) COLUMN_MAX
+     ,MAX(LENGTH(T_COLUMN_NAME) )
+           OVER(ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) A_COLUMN_MAX
+     ,MAX(LENGTH(T_COLUMN_NAME) )
+           OVER(PARTITION BY TABLE_NAME ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) T_COLUMN_MAX
+      ,MAX(LENGTH(COLUMN_COMMENTS) )
+           OVER( ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) COMMENTS_MAX
+  FROM (
+	 <foreach collection="JOIN_TABLE" index="index" item="JOIN_TABLE" separator=" UNION ALL ">
+SELECT #{JOIN_TABLE.TABLE_IDX,jdbcType=INTEGER} TABLE_IDX, STI.TABLE_NAME
+      ,'/* '||STI.TABLE_COMMENTS||' */'        TABLE_COMMENTS
+      ,STI.TABLE_ALIAS
+      ,SCI.COLUMN_ID
+      ,SCI.COLUMN_NAME                        COLUMN_NAME
+      ,STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME  T_COLUMN_NAME
+      ,'/* '||SCI.COLUMN_TITLE||' */'  COLUMN_COMMENTS
+      ,SCI.COLUMN_TITLE  COLUMN_COMMENTS_O
+      ,SCI.PK_IDX
+      ,SCI.CODE
+      ,SCI.CODE_COLUMN
+      ,(SELECT (SELECT TABLE_ALIAS FROM HO_T_SYS_TABLE_INFO WHERE OWNER = A.OWNER AND TABLE_NAME = A.TABLE_NAME )||'.'||A.COLUMN_NAME
+          FROM HO_T_SYS_COLUMN_INFO A
+         WHERE OWNER = SCI.OWNER AND TABLE_NAME = #{JOIN_TABLE.JOIN_RIGHT_TABLE,jdbcType=VARCHAR} AND COLUMN_NAME = SCI.COLUMN_NAME ) J_COLUMN_NAME
+      ,#{JOIN_TABLE.JOIN_LEFT_TABLE_OUTER} LEFT_TABLE_OUTER
+      ,#{JOIN_TABLE.JOIN_RIGHT_TABLE_OUTER} RIGHT_TABLE_OUTER
+ FROM  HO_T_SYS_TABLE_INFO STI, HO_T_SYS_COLUMN_INFO SCI
+ WHERE STI.OWNER = SCI.OWNER
+   AND STI.TABLE_NAME = SCI.TABLE_NAME
+   AND SCI.OWNER       = #{JOIN_TABLE.JOIN_OWNER,jdbcType=VARCHAR}
+   AND SCI.TABLE_NAME  = #{JOIN_TABLE.JOIN_LEFT_TABLE}
+   --AND SCI.COLUMN_NAME NOT IN ('REGI_DT', 'REGI_NO','MODI_DT','MODI_NO' )
+	</foreach>
+)
+ORDER BY TABLE_IDX, PK_IDX, COLUMN_ID
+</select>
+
+<select id="selectSubQueryColumnList" parameterType="queryParameterMap" resultType="queryResultListMap">
+SELECT TABLE_NAME, TABLE_COMMENTS, TABLE_ALIAS, N_TABLE_NAME, N_TABLE_ALIAS, N_TABLE_COMMENTS, COLUMN_ID, COLUMN_NAME, T_COLUMN_NAME, COLUMN_COMMENTS, PK_IDX, CODE, CODE_COLUMN, J_COLUMN_NAME
+     ,MAX(LENGTH(T_COLUMN_NAME) )
+           OVER(PARTITION BY NVL2(PK_IDX, 1, 0) ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) COLUMN_MAX
+     ,MAX(LENGTH(T_COLUMN_NAME) )
+           OVER(PARTITION BY TABLE_NAME ORDER BY COLUMN_NAME ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING  ) T_COLUMN_MAX
+  FROM (
+  SELECT 0 TABLE_IDX, NULL TABLE_NAME
+      ,NULL      TABLE_COMMENTS
+      ,NULL TABLE_ALIAS
+      ,NULL AS N_TABLE_NAME
+      ,NULL N_TABLE_COMMENTS
+      ,NULL N_TABLE_ALIAS
+      ,NULL COLUMN_ID
+      ,NULL COLUMN_NAME
+      ,NULL T_COLUMN_NAME
+      ,NULL COLUMN_COMMENTS
+      ,'0' PK_IDX
+      ,NULL CODE
+      ,NULL CODE_COLUMN
+      ,NULL J_COLUMN_NAME
+  FROM DUAL
+ WHERE 1 = 2
+	 <foreach collection="INLINE_TABLE" index="index" item="INLINE_TABLE">
+  UNION ALL
+SELECT #{INLINE_TABLE.TABLE_IDX,jdbcType=INTEGER} TABLE_IDX, STI.TABLE_NAME
+      ,'/* '||STI.TABLE_COMMENTS||' */'        TABLE_COMMENTS
+      ,STI.TABLE_ALIAS
+      ,#{INLINE_TABLE.INLINE_FROM,jdbcType=VARCHAR} AS N_TABLE_NAME
+      ,(SELECT TABLE_COMMENTS FROM HO_T_SYS_TABLE_INFO WHERE OWNER = SCI.OWNER AND TABLE_NAME = #{INLINE_TABLE.INLINE_FROM,jdbcType=VARCHAR}) AS N_TABLE_COMMENTS
+      ,DECODE( #{INLINE_TABLE.INLINE_SUB,jdbcType=VARCHAR}, 'AA', 'AA', (SELECT TABLE_ALIAS FROM HO_T_SYS_TABLE_INFO WHERE OWNER = SCI.OWNER AND TABLE_NAME = #{INLINE_TABLE.INLINE_FROM,jdbcType=VARCHAR})) N_TABLE_ALIAS
+      ,SCI.COLUMN_ID
+      ,SCI.COLUMN_NAME                        COLUMN_NAME
+      ,STI.TABLE_ALIAS||'.'||SCI.COLUMN_NAME  T_COLUMN_NAME
+      ,'/* '||SCI.COLUMN_TITLE||' */'  COLUMN_COMMENTS
+      ,SCI.PK_IDX
+      ,SCI.CODE
+      ,SCI.CODE_COLUMN
+      ,DECODE( #{INLINE_TABLE.INLINE_SUB,jdbcType=VARCHAR}, 'AA', 'AA', (SELECT TABLE_ALIAS FROM HO_T_SYS_TABLE_INFO WHERE OWNER = SCI.OWNER AND TABLE_NAME = #{INLINE_TABLE.INLINE_SUB,jdbcType=VARCHAR}))||'.'||SCI.COLUMN_NAME  J_COLUMN_NAME
+ FROM  HO_T_SYS_TABLE_INFO STI, HO_T_SYS_COLUMN_INFO SCI
+ WHERE STI.OWNER = SCI.OWNER
+   AND STI.TABLE_NAME = SCI.TABLE_NAME
+   AND SCI.OWNER       = #{INLINE_TABLE.INLINE_OWNER,jdbcType=VARCHAR}
+   AND SCI.TABLE_NAME  = #{INLINE_TABLE.INLINE_FROM,jdbcType=VARCHAR}
+   --AND SCI.COLUMN_NAME NOT IN ('REGI_DT', 'REGI_NO','MODI_DT','MODI_NO' )
+	</foreach>
+)
+ORDER BY TABLE_IDX, PK_IDX, COLUMN_ID
+</select>
+
+</mapper>

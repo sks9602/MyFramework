@@ -1,0 +1,1 @@
+package com.base.system.delegate;public class LoginDelegate extends ProjectDelegate { // implements HoService    }

@@ -1,0 +1,57 @@
+1. Panel상단에 icon 또는 text 추가 
+	참고 : http://stackoverflow.com/questions/4990057/how-to-put-text-and-clickable-icons-in-a-ext-panel-header
+-------------------------- [ ex ] --------------------------
+i. js
+var grid_shopping_cart = new Ext.grid.GridPanel({
+    headerCfg: {
+        tag: 'div',
+        cls: 'x-panel-header',
+        children: [
+            { tag: 'div', cls: 'panel_header_main', 'html': 'Shopping Cart' },
+            { tag: 'div', cls: 'panel_header_icon1', 'html': '<img src="images/icon_plus.png" />' },
+            { tag: 'div', cls: 'panel_header_extra', 'html': 'Order Number: 2837428347' }
+        ]
+    },
+    width: 600,
+    height: 390,
+    ...
+    listeners: {
+        'afterrender' : function(p) {
+            p.header.on('click', function(e, h) {
+                alert('you clicked the plus');
+            }, p, {
+                delegate: '.panel_header_icon1',
+                stopEvent: true
+            });
+        },
+        ...
+        
+ii. css
+div.panel_header_main {
+    text-align: left;
+    float: left;
+}
+
+div.panel_header_extra {
+    text-align: left;
+    float: right;
+    margin-right: 10px;
+}
+
+div.panel_header_icon1 {
+    text-align: right;
+    float: right;
+    margin-left: 3px;
+    cursor: hand;
+    cursor: pointer;
+}
+
+div.panel_header_icon2 {
+    text-align: right;
+    float: right;
+    margin-left: 3px;
+    cursor: hand;
+    cursor: pointer;
+}
+
+---------------------------------------------------------

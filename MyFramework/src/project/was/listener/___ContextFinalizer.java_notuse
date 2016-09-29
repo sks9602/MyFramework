@@ -1,0 +1,186 @@
+package project.was.listener;
+/**
+ * hot deploy시 PermGen memory때문에 추가 -> 결과 No suitable driver로 실패
+ */
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.Enumeration;
+import java.util.Set;
+
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
+
+import oracle.jdbc.driver.OracleDriver;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.p6spy.engine.spy.P6SpyDriver;
+
+/**
+ * Context finalization to close threads (MySQL memory leak prevention).
+ * This solution combines the best techniques described in the linked Stack
+ * Overflow answer.
+ * @see <a href="https://stackoverflow.com/questions/11872316/tomcat-guice-jdbc-memory-leak">Tomcat Guice/JDBC Memory Leak</a>
+ */
+public class ContextFinalizer
+    implements ServletContextListener {
+
+	private Driver oracleDriver = null;
+	private Driver p6spyDriver = null;
+	// TODO
+	// org.apache.catalina.loader.WebappClassLoader
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContextFinalizer.class);
+
+    public void contextInitialized(ServletContextEvent sce) {
+    	try {
+			this.p6spyDriver = new P6SpyDriver();
+    		///this.oracleDriver = new OracleDriver();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} // load and instantiate the class
+        boolean p6spySkipRegistration = false;
+        boolean oracleSkipRegistration = false;
+        
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+        	System.out.println("===  Driver : " + driver.getClass().getName());
+            if (driver instanceof P6SpyDriver) {
+            	P6SpyDriver alreadyRegistered = (P6SpyDriver) driver;
+            	System.out.println("--  Driver : " + driver.getClass().getName());
+                if (alreadyRegistered.getClass() == this.p6spyDriver.getClass()) {
+                    // same class in the VM already registered itself
+                	p6spySkipRegistration = true;
+                    this.p6spyDriver = alreadyRegistered;
+                    break;
+                }
+            }
+            /*
+            if (driver instanceof OracleDriver ) {
+            	OracleDriver alreadyRegistered = (OracleDriver) driver;
+            	System.out.println("++ Driver : " + driver.getClass().getName());
+            	
+                if (alreadyRegistered.getClass() == this.oracleDriver.getClass()) {
+                    // same class in the VM already registered itself
+                	oracleSkipRegistration = true;
+                    this.oracleDriver = alreadyRegistered;
+                    break;
+                }
+            } 
+            */
+        }
+
+        try {
+            if (!p6spySkipRegistration) {
+                DriverManager.registerDriver(p6spyDriver);
+            } else {
+                LOGGER.info("driver was registered automatically");
+            }
+            LOGGER.info(String.format("registered jdbc driver: %s v%d.%d", p6spyDriver, p6spyDriver.getMajorVersion(), p6spyDriver.getMinorVersion()));
+            /*
+            if (!oracleSkipRegistration) {
+                DriverManager.registerDriver(oracleDriver);
+            } else {
+                LOGGER.info("driver was registered automatically");
+            }
+            LOGGER.info(String.format("registered jdbc driver: %s v%d.%d", oracleDriver, oracleDriver.getMajorVersion(), oracleDriver.getMinorVersion()));
+            */
+        } catch (SQLException e) {
+            LOGGER.error( "Error registering oracle driver:  database connectivity might be unavailable!", e);
+            
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void contextDestroyed(ServletContextEvent sce) {
+    	/*
+        if (this.p6spyDriver != null) {
+            try {
+                DriverManager.deregisterDriver(p6spyDriver);
+                LOGGER.info(String.format("deregistering jdbc driver: %s", p6spyDriver));
+            } catch (SQLException e) {
+            	LOGGER.warn(  String.format("Error deregistering driver %s", p6spyDriver), e);
+            }
+            this.p6spyDriver = null;
+        } else {
+        	LOGGER.warn("No driver to deregister");
+        }
+        
+        if (this.oracleDriver != null) {
+            try {
+                DriverManager.deregisterDriver(oracleDriver);
+                LOGGER.info(String.format("deregistering jdbc driver: %s", oracleDriver));
+            } catch (SQLException e) {
+            	LOGGER.warn(  String.format("Error deregistering driver %s", oracleDriver),  e);
+            }
+            this.oracleDriver = null;
+        } else {
+        	LOGGER.warn("No driver to deregister");
+        }
+        */
+    	
+    	/*
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        Driver d = null;
+        while(drivers.hasMoreElements()) {
+            try {
+                d = drivers.nextElement();
+                DriverManager.deregisterDriver(d);
+                LOGGER.warn(String.format("Driver %s deregistered", d));
+            } catch (SQLException ex) {
+                LOGGER.warn(String.format("Error deregistering driver %s", d), ex);
+            }
+        }
+        
+        
+        */
+    	ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        // Loop through all drivers
+        Enumeration<Driver> drivers = DriverManager.getDrivers();
+        while (drivers.hasMoreElements()) {
+            Driver driver = drivers.nextElement();
+            if (driver.getClass().getClassLoader() == cl) {
+                // This driver was registered by the webapp's ClassLoader, so deregister it:
+                try {
+                	LOGGER.info("Deregistering JDBC driver {}", driver);
+                    DriverManager.deregisterDriver(driver);
+                } catch (SQLException ex) {
+                	LOGGER.error("Error deregistering JDBC driver {}", driver, ex);
+                }
+            } else {
+                // driver was not registered by the webapp's ClassLoader and may be in use elsewhere
+            	LOGGER.trace("Not deregistering JDBC driver {} as it does not belong to this webapp's ClassLoader", driver);
+            }
+        }
+        
+        Set<Thread> threadSet = Thread.getAllStackTraces().keySet();
+        Thread[] threadArray = threadSet.toArray(new Thread[threadSet.size()]);
+        for(Thread t:threadArray) {
+        	LOGGER.info("Thread -- {}", t,  t.getName());
+            if(t.getName().contains("OracleTimeoutPollingThread")) {  // Abandoned connection cleanup thread
+            	LOGGER.info("    -> stoping - {}", t);
+                synchronized(t) {
+                    t.stop(); //don't complain, it works
+                	LOGGER.info("    -> stoped - {}", t);
+                }
+            } else if(t.getName().contains("Timer")) {  // Abandoned connection cleanup thread
+            	LOGGER.info("    -> stoping - {}", t);
+                synchronized(t) {
+                    t.stop(); //don't complain, it works
+                	LOGGER.info("    -> stoped - {}", t);
+                }
+            } else if(t.getName().contains("Thread")) {  // Abandoned connection cleanup thread
+            	LOGGER.info("    -> stoping - {}", t);
+                synchronized(t) {
+                    t.stop(); //don't complain, it works
+                	LOGGER.info("    -> stoped - {}", t);
+                }
+            }
+        }
+    }
+
+}

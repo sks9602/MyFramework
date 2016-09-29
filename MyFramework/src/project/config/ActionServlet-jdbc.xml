@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans default-lazy-init="true"
+ 		xmlns="http://www.springframework.org/schema/beans"
+		xmlns:security="http://www.springframework.org/schema/security"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.1.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<import resource="./applicationContext.xml"/>
+	<import resource="./applicationContextDelegate-jdbc.xml"/>
+	<import resource="./ActionServlet.xml"/>
+
+
+	<!--  화면 layout -->
+	<bean name="/system/dataBase.do" class="com.base.system.action.DataBaseAction"  parent="HoController" scope="request">
+		<property name="hoDelegate" ref="DataBaseDelegate"/>
+		<property name="defaultPageInfo" value="/jsp/common/system/DataBase.#p_action_flag#.jsp"/>
+	</bean>
+
+
+</beans>

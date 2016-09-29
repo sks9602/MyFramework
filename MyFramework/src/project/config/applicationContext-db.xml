@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/context"
+	   xmlns:util="http://www.springframework.org/schema/util"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+
+
+	<!-- 시작.. 프로젝트에서 사용하는 메인 DB 정보 -->
+	<!--  servet.xml에 설정된 jndi이용  이거하면 log debug안되어서 밑에 있는 id="projectDataSourceTarget" 사용 -->
+	<!--  bean id="projectDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/jdbc/projectDS"/>
+	    <property name="resourceRef" value="true"/>
+	</bean -->
+	
+	<!--  jndi를 P6Spy로 변경 -->
+    <bean id="projectDataSourceTarget" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/projectDS" />
+    </bean>
+
+	<!--  sql debug시 파라미터에 set해서 뿌려주기위해 사용. -->
+   <bean id="projectDataSource" class="com.p6spy.engine.spy.P6DataSource">
+        <constructor-arg>
+            <ref bean="projectDataSourceTarget"/>
+        </constructor-arg>
+    </bean>
+
+	<!--  dbcp이용 db connection 이거 사용할 경우 10번정도  hot-deploy하면 서버 죽음 -->
+   <!--  bean id="projectDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${database.class}"/>
+		<property name="url" value="${database.url}"/>
+        <property name="username" value="${database.username}"/>
+        <property name="password" value="${database.password}"/>
+    </bean -->
+	
+
+
+	<!-- @TODO for Reload Error!!!>
+	<bean id="projectSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:/com/base/sql/SqlMapConfig.xml" />
+		<property name="mapperLocations">
+			<array>
+     			<value>classpath*:/**/sql/*.xml</value>
+    		</array>
+		</property>
+		<property name="dataSource" ref="projectDataSource" />
+	</bean -->
+	
+	<!-- @TODO for Was.. OK  -->
+	<bean id="projectSqlSessionFactory" class="project.jun.dao.ibatis.RefreshableSqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:/com/base/sql/SqlMapConfig.xml" />
+		<property name="dataSource" ref="projectDataSource" />
+		<property name="checkInterval" value="500" />
+	</bean>
+
+	<!-- @TODO for junit TestCase>
+	<bean id="projectSqlSessionFactory" class="project.jun.dao.ibatis.RefreshableSqlSessionFactoryBean">
+		<property name="configLocation" value="com/base/sql/SqlMapConfig.xml" />
+		<property name="dataSource" ref="projectDataSource" />
+		<property name="checkInterval" value="500" />
+	</bean-->
+
+	<!-- Execute Type REUSE (default) -->
+	<bean id="projectSqlSessionReuseTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="projectSqlSessionFactory" />
+		<constructor-arg index="1" value="REUSE" />
+	</bean>
+	<!-- 끝.. 프로젝트에서 사용하는 메인 DB 정보 -->
+
+	<!-- Execute Type "BATCH" (default) -->
+	<!-- bean id="projectSqlSessionBatchTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="projectSqlSessionFactory" />
+		<constructor-arg index="1" value="BATCH" />
+	</bean -->
+	<!-- 끝.. 프로젝트에서 사용하는 메인 DB 정보 -->
+
+	<!-- 시작..  SCHEME 정보를 얻기위한 DB 정보 -->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:database.properties"/>
+	</bean>
+	
+	<!--  servet.xml에 설정된 jndi이용  이거하면 log debug안되어서 밑에 있는 id="projectDataSourceTarget" 사용 -->
+	<!-- bean id="dbDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+	    <property name="jndiName" value="java:comp/env/jdbc/projectDS"/>
+	    <property name="resourceRef" value="true"/>
+	</bean -->
+	<!--  jndi를 P6Spy로 변경 -->
+    <bean id="dbDataSourceTarget" class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="jndiName" value="java:comp/env/jdbc/projectDS" />
+    </bean>
+
+	<!--  sql debug시 파라미터에 set해서 뿌려주기위해 사용. -->
+   <bean id="dbDataSource" class="com.p6spy.engine.spy.P6DataSource">
+        <constructor-arg>
+            <ref bean="dbDataSourceTarget"/>
+        </constructor-arg>
+    </bean>
+
+	<!--  dbcp이용 db connection 이거 사용할 경우 10번정도  hot-deploy하면 서버 죽음 -->
+    <!--  bean id="dbDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${database.class}"/>
+		<property name="url" value="${database.url}"/>
+        <property name="username" value="${database.username}"/>
+        <property name="password" value="${database.password}"/>
+    </bean -->
+
+
+	<bean id="dbSqlSessionFactory" class="project.jun.dao.ibatis.RefreshableSqlSessionFactoryBean">
+		<!-- @TODO for Was -->
+		<property name="configLocation" value="/WEB-INF/classes/com/base/sql/SqlMapConfig_JDBC.xml"/>
+		<!-- @TODO for junit TestCase>
+		<property name="configLocation" value="com/base/sql/SqlMapConfig_JDBC.xml" /-->
+		<!-- bean id="dbSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean" -->
+		<property name="dataSource" ref="dbDataSource" />
+		<property name="checkInterval" value="500" />
+	</bean>
+
+	<!-- Execute Type REUSE (default) -->
+	<bean id="dbSqlSessionReuseTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="dbSqlSessionFactory" />
+		<constructor-arg index="1" value="REUSE" />
+	</bean>
+	<!-- Execute Type BATCH (default) -->
+	<!-- bean id="dbSqlSessionBatchTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg index="0" ref="dbSqlSessionFactory" />
+		<constructor-arg index="1" value="BATCH" />
+	</bean -->
+
+	<!-- 끝.. SCHEME 정보를 얻기위한 DB 정보 -->
+
+</beans>

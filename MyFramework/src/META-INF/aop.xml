@@ -1,0 +1,6 @@
+<aspectj>
+	<aspects>
+		<!-- aspect name="project.aspectj.monitor.JdbcAspect"/ -->              
+		<!-- aspect name="project.aspectj.monitor.DelegateAspect"/ -->          
+	</aspects>
+</aspectj> 
