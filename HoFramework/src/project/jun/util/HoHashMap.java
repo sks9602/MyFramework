@@ -2,7 +2,9 @@ package project.jun.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import project.jun.dao.result.HoMap;
 
@@ -16,8 +18,12 @@ public class HoHashMap<K,V> extends HashMap {
 	 * @return
 	 */
 	public List getList(String key) {
-		List alist = (List) super.get(key);
-		return alist;
+		if( super.get(key) instanceof List) {
+			List alist = (List) super.get(key);
+			return alist;
+		} else {
+			return null;
+		}
 	}
 
 	public String getString(String key, int i, String column) {
@@ -59,5 +65,60 @@ public class HoHashMap<K,V> extends HashMap {
 		}
 		alist.add(obj);
 		put(key, alist);
+	}
+	
+	public Iterator<K> getKeyIterator() {
+		Set<K> keySet = this.keySet();
+			
+		return keySet.iterator();
+	}
+	
+	
+	public String toJsonString() {
+		StringBuilder sb = new StringBuilder();
+		
+		Iterator<K> it = this.getKeyIterator();
+		if( it != null ) {
+			int i=0;
+			String key = "";
+			while(it.hasNext()) {
+				key = it.next().toString();
+				
+				if( i > 0 ) {
+					sb.append(" , ");
+				}
+				sb.append("\"").append( key ).append("\" : ");
+				sb.append("\"").append( this.get(key).toString() ).append("\" ");
+				
+				i++;
+			}
+		}
+		
+		return sb.toString();
+	}
+	
+	public String toJsonStringWithBrace() {
+		StringBuilder sb = new StringBuilder();
+		
+		Iterator<K> it = this.getKeyIterator();
+		sb.append("{");
+		if( it != null ) {
+			int i=0;
+			String key = "";
+			while(it.hasNext()) {
+				key = it.next().toString();
+				
+				if( i > 0 ) {
+					sb.append(" , ");
+				}
+				sb.append("\"").append( key ).append("\" : ");
+				sb.append("\"").append( this.get(key).toString() ).append("\" ");
+				
+				i++;
+			}
+		}
+		sb.append("}");
+		
+		return sb.toString();
 	}
 }
